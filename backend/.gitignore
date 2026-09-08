@@ -1,0 +1,49 @@
+# =========================
+# Environments and Secrets
+# =========================
+.env
+env
+env/
+venv/
+.venv/
+
+# =========================
+# Python & Bytecode
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# =========================
+# IDEs and Editors
+# =========================
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# =========================
+# Project Specific Data
+# =========================
+data/plots/
+/data/
+*.html
+
+# =========================
+# OS Generated Files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Testing & Coverage
+# =========================
+.pytest_cache/
+htmlcov/
+.coverage
+
+# =========================
+# Documentation
+# =========================
+docs/

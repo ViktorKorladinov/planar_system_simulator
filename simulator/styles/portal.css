@@ -1,0 +1,6 @@
+.card-content img{
+    display: block;
+    position: relative !important;
+    max-height: 200px;
+    width: 100%;
+}
