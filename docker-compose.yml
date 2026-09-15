@@ -1,0 +1,173 @@
+services:
+  # =========================================================================
+  # Database Service (PostgreSQL 15)
+  # =========================================================================
+  db:
+    image: postgres:15-alpine
+    container_name: planar_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_DB: ${POSTGRES_DB:-dbname}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-user} -d ${POSTGRES_DB:-dbname}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - planar_network
+
+  # =========================================================================
+  # Cache & Broker Service (Redis 7)
+  # =========================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: planar_redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - planar_network
+
+  # =========================================================================
+  # Backend API Service (FastAPI)
+  # =========================================================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: planar_backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-user}:${POSTGRES_PASSWORD:-password}@db:5432/${POSTGRES_DB:-dbname}
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
+      BACKEND_PORT: 8000
+      BACKEND_URL: ${BACKEND_PUBLIC_URL:-http://localhost:8000}
+      SIMULATOR_ALLOWED_ORIGIN: ${SIMULATOR_ALLOWED_ORIGIN:-http://localhost:3000}
+      FRONTEND_ALLOWED_ORIGIN: ${FRONTEND_ALLOWED_ORIGIN:-http://localhost:5173}
+    expose:
+      - "8000"
+    ports:
+      # External host port is required for direct client-browser REST requests and SSE events
+      - "${BACKEND_HOST_PORT:-8000}:8000"
+    volumes:
+      - plots_data:/app/data/plots
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/docs"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    networks:
+      - planar_network
+
+  # =========================================================================
+  # Celery Background Worker
+  # =========================================================================
+  celery_worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: planar_celery_worker
+    restart: unless-stopped
+    command: ["celery", "-A", "core.celery_app", "worker", "--loglevel=info", "-P", "solo"]
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-user}:${POSTGRES_PASSWORD:-password}@db:5432/${POSTGRES_DB:-dbname}
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
+    volumes:
+      - plots_data:/app/data/plots
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - planar_network
+
+  # =========================================================================
+  # Frontend 1 Application (React 19 + Vite SPA served via Nginx)
+  # =========================================================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_BACKEND_URL: ${VITE_BACKEND_URL:-/api/v1}
+        VITE_SIMULATOR_URL: ${VITE_SIMULATOR_URL:-http://localhost:3000}
+    container_name: planar_frontend
+    restart: unless-stopped
+    expose:
+      - "80"
+    ports:
+      # Host port customizable via .env (default: 5173, strictly > 1024)
+      - "${FE1_HOST_PORT:-5173}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - planar_network
+
+  # =========================================================================
+  # Frontend 2 Application (Next.js 14 Simulation Viewer)
+  # =========================================================================
+  simulator:
+    build:
+      context: ./simulator
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-/api/v1}
+    container_name: planar_simulator
+    restart: unless-stopped
+    environment:
+      INTERNAL_API_URL: http://backend:8000
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-/api/v1}
+    expose:
+      - "3000"
+    ports:
+      # Host port customizable via .env (default: 3000, strictly > 1024)
+      - "${FE2_HOST_PORT:-3000}:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    networks:
+      - planar_network
+
+networks:
+  planar_network:
+    driver: bridge
+    name: planar_network
+
+volumes:
+  postgres_data:
+    name: planar_postgres_data
+  redis_data:
+    name: planar_redis_data
+  plots_data:
+    name: planar_plots_data

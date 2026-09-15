@@ -7,7 +7,8 @@ export async function createEntity<TRequest, TResponse>(
     data: TRequest,
     isDryRun: boolean = false
 ): Promise<TResponse> {
-    const url = new URL(`${API_BASE_URL}/${endpoint}/`);
+    const base = typeof window !== 'undefined' ? window.location.origin : 'http://localhost';
+    const url = new URL(`${API_BASE_URL}/${endpoint}/`, base);
 
     if (isDryRun) {
         url.searchParams.append('dry_run', 'true');
