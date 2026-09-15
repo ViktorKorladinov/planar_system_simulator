@@ -44,21 +44,22 @@ WORKDIR /app
 COPY --chown=appuser:appgroup api ./api
 COPY --chown=appuser:appgroup clients ./clients
 COPY --chown=appuser:appgroup core ./core
-COPY --chown=appuser:appgroup data ./data
 COPY --chown=appuser:appgroup db ./db
 COPY --chown=appuser:appgroup domain ./domain
 COPY --chown=appuser:appgroup mappers ./mappers
 COPY --chown=appuser:appgroup services ./services
 COPY --chown=appuser:appgroup solvers ./solvers
-COPY --chown=appuser:appgroup templates ./templates
+COPY --chown=appuser:appgroup templates* ./templates/
 COPY --chown=appuser:appgroup alembic ./alembic
 COPY --chown=appuser:appgroup alembic.ini .
 COPY --chown=appuser:appgroup dependencies.py .
 COPY --chown=appuser:appgroup main.py .
 COPY --chown=appuser:appgroup entrypoint.sh .
 
-# Ensure data plot directory exists and is writable by non-root user
-RUN mkdir -p /app/data/plots && chown -R appuser:appgroup /app/data && chmod +x /app/entrypoint.sh
+# Ensure data plot and templates directories exist and are writable by non-root user
+RUN mkdir -p /app/data/plots /app/templates && \
+    chown -R appuser:appgroup /app/data /app/templates && \
+    chmod +x /app/entrypoint.sh
 
 USER appuser
 

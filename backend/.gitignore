@@ -26,9 +26,11 @@ __pycache__/
 # =========================
 # Project Specific Data
 # =========================
-data/plots/
+data/plots/*
 /data/
 *.html
+!templates/
+!templates/**
 
 # =========================
 # OS Generated Files

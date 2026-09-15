@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Plotly graph</title>
+    <style>html, body, body > div {
+        height: 100%;
+        overflow: hidden
+    }</style>
+
+</head>
+<body>
+<span id="last_mover" data-value="{{ last_mover }}"></span>
+{{ fig }}
+</body>
+<script>
+    let added = false
+    let plotlyPlot = document.getElementsByClassName("plotly-graph-div")[0];
+    const graphDiv = plotlyPlot.id
+    const last_mover = document.querySelector("#last_mover").dataset.value
+    window.moveBarTo = (idx) => {
+        if (added) {
+            Plotly.deleteTraces(graphDiv, -1)
+        } else {
+            added = true
+        }
+        Plotly.addTraces(graphDiv, {
+            y: ['mover0', last_mover], x: [idx, idx], 'mode': 'lines',
+            'line': {'color': 'red', 'width': 1}, name: 'Current Tick'
+        });
+    }
+    plotlyPlot.on('plotly_hover', function (data) {
+        window.parent.abc(data)
+    })
+
+    function updateMarker(x) {
+        let shapes = plotlyPlot.layout.shapes || [];
+
+        if (shapes[0]) {
+            shapes[0].x0 = x;
+            shapes[0].x1 = x;
+        } else {
+            shapes.push({
+                type: 'line',
+                x0: x,
+                x1: x,
+                y0: 0,
+                y1: 1,
+                line: {color: 'red', width: 2}
+            });
+        }
+
+        Plotly.relayout(graphDiv, { shapes: shapes });
+    }
+
+    window.addEventListener('message', (event) => {
+        if (event.data.type === 'UPDATE_MARKER') {
+            updateMarker(event.data.position);
+        }
+    })
+
+</script>
+</html>
