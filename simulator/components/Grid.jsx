@@ -7,8 +7,8 @@ import Tile from './Tile';
 import Toolbar from './Toolbar';
 import {useMemo} from 'react';
 
-const CELL_SIZE = 240;
-const MOVER_SIZE = 112;
+import {processMoverTrajectories, CELL_SIZE, MOVER_SIZE} from '../utils/trajectoryProcessor';
+
 // m x n
 export default function Grid({m, n, simulationData, fill}) {
   const medicineInfo = simulationData?.tile_type_dict || {};
@@ -17,26 +17,7 @@ export default function Grid({m, n, simulationData, fill}) {
   const ganttData = simulationData?.gantts || {};
   let simulationDatumElement = simulationData?.mover_paths?.paths || [];
   const positions = useMemo(() => {
-    const logicalToExactPos = (allPaths) => {
-      let resultPaths = allPaths.map(moverPath => {
-        return moverPath.map(pos => {
-          let newPos = {...pos};
-          newPos.logicalX = pos.x;
-          newPos.logicalY = pos.y;
-          newPos.x = pos.x * CELL_SIZE + CELL_SIZE / 2 - MOVER_SIZE / 2;
-          newPos.y = pos.y * CELL_SIZE + CELL_SIZE / 2 - MOVER_SIZE / 2;
-          if (pos.mode === 'wait_rest') {
-            newPos.x += pos['rest_offset_x'] * CELL_SIZE / 2;
-            newPos.y += pos['rest_offset_y'] * CELL_SIZE / 2;
-          }
-          return newPos;
-        });
-      });
-
-      return resultPaths;
-    };
-
-    return logicalToExactPos(simulationDatumElement);
+    return processMoverTrajectories(simulationDatumElement);
   }, [simulationDatumElement]);
 
   const [counter, setCounter] = useState(1);
