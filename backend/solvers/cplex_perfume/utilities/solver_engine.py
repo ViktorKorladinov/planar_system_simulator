@@ -1,9 +1,18 @@
+import platform
+from docplex.cp.config import context
+
+from core.config import settings
 from solvers.cplex_perfume.models import CplexPerfumeData
 from solvers.cplex_perfume.utilities.model_builder import SchedulingModelBuilder
 from solvers.cplex_perfume.utilities.utils import solution_to_dataframe
 
 
 def run(data: CplexPerfumeData):
+    if platform.processor() != 'arm':
+        context.solver.local.execfile = settings.CPLEX_PATH
+    else:
+        context.solver.local.execfile = settings.ARM64_PATH
+
     builder = SchedulingModelBuilder(
         recipes=data.recipes_raw,
         ingredients=data.ingredients,

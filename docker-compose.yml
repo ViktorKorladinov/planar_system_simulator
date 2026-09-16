@@ -54,6 +54,8 @@ services:
       BACKEND_URL: ${BACKEND_PUBLIC_URL:-http://localhost:${BACKEND_HOST_PORT:-8000}}
       SIMULATOR_ALLOWED_ORIGIN: ${SIMULATOR_ALLOWED_ORIGIN:-http://localhost:${FE2_HOST_PORT:-3000}}
       FRONTEND_ALLOWED_ORIGIN: ${FRONTEND_ALLOWED_ORIGIN:-http://localhost:${FE1_HOST_PORT:-5173}}
+      CPLEX_PATH: ${CPLEX_PATH:-/opt/ibm/ILOG/CPLEX_Studio2211/cpoptimizer/bin/x86-64_linux/cpoptimizer}
+      GRB_LICENSE_FILE: /opt/gurobi/gurobi.lic
     expose:
       - "8000"
     ports:
@@ -61,6 +63,8 @@ services:
       - "${BACKEND_HOST_PORT:-8000}:8000"
     volumes:
       - plots_data:/app/data/plots
+      - cplex_data:/opt/ibm:ro
+      - ./gurobi.lic:/opt/gurobi/gurobi.lic:ro
     depends_on:
       db:
         condition: service_healthy
@@ -89,8 +93,12 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER:-user}:${POSTGRES_PASSWORD:-password}@db:5432/${POSTGRES_DB:-dbname}
       CELERY_BROKER_URL: redis://redis:6379/0
       CELERY_RESULT_BACKEND: redis://redis:6379/0
+      CPLEX_PATH: ${CPLEX_PATH:-/opt/ibm/ILOG/CPLEX_Studio2211/cpoptimizer/bin/x86-64_linux/cpoptimizer}
+      GRB_LICENSE_FILE: /opt/gurobi/gurobi.lic
     volumes:
       - plots_data:/app/data/plots
+      - cplex_data:/opt/ibm:ro
+      - ./gurobi.lic:/opt/gurobi/gurobi.lic:ro
     depends_on:
       db:
         condition: service_healthy
@@ -98,6 +106,29 @@ services:
         condition: service_healthy
     healthcheck:
       disable: true
+    networks:
+      - planar_network
+
+  # =========================================================================
+  # One-Time CPLEX Installer Service (Run on Linux host to populate cplex_data)
+  # Usage: docker compose --profile setup run --rm cplex_installer
+  # =========================================================================
+  cplex_installer:
+    image: python:3.10-slim
+    profiles: ["setup"]
+    volumes:
+      - .:/installer:ro
+      - cplex_data:/opt/ibm
+    command: >
+      sh -c "if [ -f /installer/cplex_studio2211.linux_x86_64.bin ]; then
+               chmod +x /installer/cplex_studio2211.linux_x86_64.bin &&
+               echo 'Installing CPLEX Studio 22.1.1 to /opt/ibm...' &&
+               /installer/cplex_studio2211.linux_x86_64.bin -i silent -DLICENSE_ACCEPTED=TRUE &&
+               echo 'CPLEX successfully installed to /opt/ibm!';
+             else
+               echo 'Error: /installer/cplex_studio2211.linux_x86_64.bin not found in project root.' &&
+               exit 1;
+             fi"
     networks:
       - planar_network
 
@@ -173,3 +204,5 @@ volumes:
     name: planar_redis_data
   plots_data:
     name: planar_plots_data
+  cplex_data:
+    name: planar_cplex_data
