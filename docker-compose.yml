@@ -114,16 +114,18 @@ services:
   # Usage: docker compose --profile setup run --rm cplex_installer
   # =========================================================================
   cplex_installer:
-    image: python:3.10-slim
+    image: eclipse-temurin:17-jre
     profiles: ["setup"]
     volumes:
       - .:/installer
       - cplex_data:/opt/ibm
+    environment:
+      JAVA_TOOL_OPTIONS: "-Djdk.util.zip.disableZip64ExtraFieldValidation=true"
     command: >
       sh -c "if [ -f /installer/cplex_studio2211.linux_x86_64.bin ]; then
                chmod +x /installer/cplex_studio2211.linux_x86_64.bin &&
-               echo 'Installing CPLEX Studio 22.1.1 to /opt/ibm...' &&
-               /installer/cplex_studio2211.linux_x86_64.bin -i silent -DLICENSE_ACCEPTED=TRUE &&
+               echo 'Installing CPLEX Studio 22.1.1 to /opt/ibm using modern Java runtime...' &&
+               /installer/cplex_studio2211.linux_x86_64.bin LAX_VM /opt/java/openjdk/bin/java -i silent -DLICENSE_ACCEPTED=TRUE &&
                echo 'CPLEX successfully installed to /opt/ibm!';
              else
                echo 'Error: /installer/cplex_studio2211.linux_x86_64.bin not found in project root.' &&
