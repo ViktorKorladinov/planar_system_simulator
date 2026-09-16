@@ -33,90 +33,6 @@ export default function Grid({m, n, simulationData, fill}) {
         });
       });
 
-      if (resultPaths.length > 0) {
-        const numTimeSteps = resultPaths[0].length;
-        for (let t = 0; t < numTimeSteps; t++) {
-          const tileGroups = {};
-          for (let m = 0; m < resultPaths.length; m++) {
-            const pos = resultPaths[m][t];
-            if (pos.mode !== 'wait_rest') {
-              const key = `${pos.logicalX},${pos.logicalY}`;
-              if (!tileGroups[key]) tileGroups[key] = [];
-              tileGroups[key].push(m);
-            }
-          }
-
-          for (const key in tileGroups) {
-            const moversOnTile = tileGroups[key];
-            if (moversOnTile.length > 1) {
-              const offset = CELL_SIZE / 4; // 60
-              
-              let groupIsHorizontal = false;
-              let anyMoving = false;
-              
-              for (const moverIdx of moversOnTile) {
-                 const pos = resultPaths[moverIdx][t];
-                 const isEntering = t > 0 && (resultPaths[moverIdx][t-1].logicalX !== pos.logicalX || resultPaths[moverIdx][t-1].logicalY !== pos.logicalY);
-                 const isLeaving = t < numTimeSteps - 1 && (resultPaths[moverIdx][t+1].logicalX !== pos.logicalX || resultPaths[moverIdx][t+1].logicalY !== pos.logicalY);
-                 
-                 if (isEntering || isLeaving) {
-                    let dxLog = 0, dyLog = 0;
-                    if (isEntering) {
-                       dxLog = pos.logicalX - resultPaths[moverIdx][t-1].logicalX;
-                       dyLog = pos.logicalY - resultPaths[moverIdx][t-1].logicalY;
-                    } else {
-                       dxLog = resultPaths[moverIdx][t+1].logicalX - pos.logicalX;
-                       dyLog = resultPaths[moverIdx][t+1].logicalY - pos.logicalY;
-                    }
-                    groupIsHorizontal = Math.abs(dxLog) > Math.abs(dyLog);
-                    anyMoving = true;
-                    break; 
-                 }
-              }
-              
-              if (!anyMoving) {
-                 const moverIdx = moversOnTile[0];
-                 const pos = resultPaths[moverIdx][t];
-                 let dxLog = 0, dyLog = 0;
-                 let prevStep = t - 1;
-                 while (prevStep >= 0) {
-                    const prev = resultPaths[moverIdx][prevStep];
-                    if (prev.logicalX !== pos.logicalX || prev.logicalY !== pos.logicalY) {
-                       dxLog = pos.logicalX - prev.logicalX;
-                       dyLog = pos.logicalY - prev.logicalY;
-                       break;
-                    }
-                    prevStep--;
-                 }
-                 if (dxLog === 0 && dyLog === 0) {
-                    let nextStep = t + 1;
-                    while (nextStep < numTimeSteps) {
-                       const next = resultPaths[moverIdx][nextStep];
-                       if (next.logicalX !== pos.logicalX || next.logicalY !== pos.logicalY) {
-                          dxLog = next.logicalX - pos.logicalX;
-                          dyLog = next.logicalY - pos.logicalY;
-                          break;
-                       }
-                       nextStep++;
-                    }
-                 }
-                 groupIsHorizontal = Math.abs(dxLog) > Math.abs(dyLog);
-              }
-              
-              moversOnTile.forEach((moverIdx, i) => {
-                const pos = resultPaths[moverIdx][t];
-                const sign = (i % 2 === 0) ? -1 : 1;
-                
-                if (groupIsHorizontal) {
-                  pos.y += sign * offset;
-                } else {
-                  pos.x += sign * offset;
-                }
-              });
-            }
-          }
-        }
-      }
       return resultPaths;
     };
 
@@ -182,49 +98,6 @@ export default function Grid({m, n, simulationData, fill}) {
       api.start(index => {
         const position = newCoords[index];
         const pos = moversRefs.current[index];
-        const currentLogical = positions[index][progressRef.current];
-        
-        let toArray = [];
-        const dx = Math.abs(position.x - pos.x);
-        const dy = Math.abs(position.y - pos.y);
-        const totalDist = dx + dy;
-        
-        if (dx > 0 && dy > 0) {
-          const durationX = animateRef.current * (dx / totalDist);
-          const durationY = animateRef.current * (dy / totalDist);
-          
-          const nextLogical = position;
-          const targetCenterY = nextLogical.logicalY * CELL_SIZE + CELL_SIZE / 2 - MOVER_SIZE / 2;
-          const targetCenterX = nextLogical.logicalX * CELL_SIZE + CELL_SIZE / 2 - MOVER_SIZE / 2;
-          
-          const isTargetOffsetY = Math.abs(position.y - targetCenterY) > 1;
-          const isTargetOffsetX = Math.abs(position.x - targetCenterX) > 1;
-          
-          let moveYFirst = false;
-          if (dx > dy) {
-            moveYFirst = isTargetOffsetY;
-          } else {
-            moveYFirst = !isTargetOffsetX;
-          }
-          
-          if (moveYFirst) {
-            toArray = [
-              {y: position.y, config: {duration: durationY}}, 
-              {x: position.x, config: {duration: durationX}}
-            ];
-          } else {
-            toArray = [
-              {x: position.x, config: {duration: durationX}}, 
-              {y: position.y, config: {duration: durationY}}
-            ];
-          }
-        } else if (dx > 0) {
-          toArray = [{x: position.x, config: {duration: animateRef.current}}];
-        } else if (dy > 0) {
-          toArray = [{y: position.y, config: {duration: animateRef.current}}];
-        } else {
-          toArray = [{x: position.x, y: position.y, config: {duration: animateRef.current}}];
-        }
 
         moversRefs.current[index] = {
           x: position.x,
@@ -232,7 +105,9 @@ export default function Grid({m, n, simulationData, fill}) {
         };
         return {
           from: {x: pos.x, y: pos.y},
-          to: toArray
+          to: {x: position.x, y: position.y},
+          config: {duration: animateRef.current},
+          immediate: animateRef.current === 0,
         };
       });
       progressRef.current += 1;
