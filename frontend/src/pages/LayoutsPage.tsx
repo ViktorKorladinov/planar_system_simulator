@@ -143,6 +143,7 @@ export default function LayoutsPage() {
                 initialData={copyData}
                 onClose={() => {
                     searchParams.delete('create');
+                    searchParams.delete('upload');
                     setSearchParams(searchParams);
                     setCopyData(null);
                 }}

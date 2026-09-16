@@ -1,5 +1,6 @@
 import * as React from 'react';
-import {type SyntheticEvent, useMemo, useRef, useState} from 'react';
+import {type SyntheticEvent, useEffect, useMemo, useRef, useState} from 'react';
+import {useSearchParams} from 'react-router-dom';
 import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
 import {createLayout} from '../../api/layouts';
 import {getIngredientList} from '../../api/ingredient_lists';
@@ -57,10 +58,23 @@ const getDispenserInitials = (types: string[]) => {
 
 export default function LayoutCreateModal({isOpen, initialData, onClose, onSuccessSubmit}: LayoutCreateModalProps) {
     const queryClient = useQueryClient();
+    const [searchParams, setSearchParams] = useSearchParams();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const gridContainerRef = useRef<HTMLDivElement>(null);
 
     const [validationErrors, setValidationErrors] = useState<string[]>([]);
+
+    useEffect(() => {
+        if (isOpen && searchParams.get('upload') === 'true') {
+            const nextParams = new URLSearchParams(searchParams);
+            nextParams.delete('upload');
+            setSearchParams(nextParams, {replace: true});
+            // Small timeout to allow modal DOM to be fully mounted
+            setTimeout(() => {
+                fileInputRef.current?.click();
+            }, 50);
+        }
+    }, [isOpen, searchParams, setSearchParams]);
 
     // Layout Form State
     const [name, setName] = useState('');
@@ -233,6 +247,79 @@ export default function LayoutCreateModal({isOpen, initialData, onClose, onSucce
                 }
             }
         }, 50);
+    };
+
+    const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            try {
+                const text = event.target?.result as string;
+                const json = JSON.parse(text);
+                const placement = json.placement || (json.layout && json.layout.placement) || null;
+                if (!placement || !Array.isArray(placement)) {
+                    setValidationErrors(["Invalid file format. 'placement' array is missing."]);
+                    if (fileInputRef.current) fileInputRef.current.value = '';
+                    return;
+                }
+
+                const height = placement.length;
+                const width = height > 0 ? placement[0].length : 0;
+
+                const uniqueIngredients = new Set<string>();
+                const newTiles: TileDTO[] = [];
+                for (let y = 0; y < height; y++) {
+                    for (let x = 0; x < width; x++) {
+                        const cell = placement[y][x];
+                        if (cell === 'interface') {
+                            newTiles.push({x, y, type: 'interface', dispensed_types: []});
+                        } else if (!cell || cell === 'empty') {
+                            newTiles.push({x, y, type: 'empty', dispensed_types: []});
+                        } else if (cell === 'blocked') {
+                            newTiles.push({x, y, type: 'blocked', dispensed_types: []});
+                        } else if (cell === 'mixer') {
+                            newTiles.push({x, y, type: 'mixer', dispensed_types: []});
+                        } else if (cell === 'capper') {
+                            newTiles.push({x, y, type: 'capper', dispensed_types: []});
+                        } else {
+                            const dispensed = cell.split(',').map((s: string) => s.trim()).filter(Boolean);
+                            dispensed.forEach((d: string) => uniqueIngredients.add(d));
+                            newTiles.push({x, y, type: 'dispenser', dispensed_types: dispensed});
+                        }
+                    }
+                }
+
+                const baseName = file.name.replace(/\.[^/.]+$/, '');
+                const newIngredientList: IngredientListCreateRequestDTO = {
+                    name: `${baseName} Ingredients`,
+                    type: 'medicine',
+                    ingredients: Array.from(uniqueIngredients).map(name => ({
+                        name,
+                        note_type: null,
+                        viscosity: null,
+                        volatility_rank: null
+                    }))
+                };
+
+                setName(baseName);
+                setLayoutType('custom');
+                setSavedLayoutType('custom');
+                setDimensions({width, height});
+                setTiles(newTiles);
+                setOrphanDispensers([]);
+                setDraftList(newIngredientList);
+                setSelectedListId(null);
+                setValidationErrors([]);
+                calculateAndSetZoom(width, height);
+            } catch (err: unknown) {
+                const errorMessage = err instanceof Error ? err.message : 'Invalid JSON';
+                setValidationErrors([`Failed to parse file: ${errorMessage}`]);
+            }
+            if (fileInputRef.current) fileInputRef.current.value = '';
+        };
+        reader.readAsText(file);
     };
 
     // Setup Logic
@@ -443,7 +530,14 @@ export default function LayoutCreateModal({isOpen, initialData, onClose, onSucce
                 {/* Header */}
                 <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center shrink-0 relative">
                     <h2 className="text-xl font-bold text-gray-900 w-1/3">Create Layout</h2>
-                    <div className="w-1/3 flex justify-end items-center gap-4 ml-auto">
+                    <div className="w-2/3 flex justify-end items-center gap-3 ml-auto">
+                        <button
+                            type="button"
+                            onClick={() => fileInputRef.current?.click()}
+                            className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 shadow-sm transition-colors flex items-center gap-1.5"
+                        >
+                            Load from File
+                        </button>
                         <button onClick={onClose}
                                 className="text-gray-400 hover:text-gray-600 p-1 rounded-md hover:bg-gray-100">
                             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -470,11 +564,25 @@ export default function LayoutCreateModal({isOpen, initialData, onClose, onSucce
                 )}
 
                 <div className="flex-1 min-h-0 bg-gray-50 relative p-6">
+                    <input
+                        type="file"
+                        accept=".json"
+                        ref={fileInputRef}
+                        onChange={handleFileUpload}
+                        className="hidden"
+                    />
                     {!layoutType ? (
-                        <div className="h-full flex items-center justify-center">
+                        <div className="h-full flex items-center justify-center gap-6">
+                            <button
+                                type="button"
+                                onClick={() => fileInputRef.current?.click()}
+                                className="px-8 py-4 bg-white border border-gray-300 text-gray-700 rounded-lg shadow-sm hover:bg-gray-50 font-medium text-lg transition-colors"
+                            >
+                                Load from File
+                            </button>
                             <button
                                 onClick={() => setIsConfiguring(true)}
-                                className="px-6 py-3 bg-black text-white rounded-lg shadow hover:bg-black font-medium text-lg"
+                                className="px-8 py-4 bg-black text-white rounded-lg shadow hover:bg-black font-medium text-lg transition-colors"
                             >
                                 Choose Type
                             </button>

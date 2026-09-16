@@ -28,12 +28,20 @@ export default function TopNav() {
                 );
             case '/layouts':
                 return (
-                    <button
-                        className={createBtnClass}
-                        onClick={() => navigate('/layouts?create=true')}
-                    >
-                        Create Layout
-                    </button>
+                    <>
+                        <button
+                            className={createBtnClass}
+                            onClick={() => navigate('/layouts?create=true')}
+                        >
+                            Create Layout
+                        </button>
+                        <button
+                            className={createBtnClass}
+                            onClick={() => navigate('/layouts?create=true&upload=true')}
+                        >
+                            Load from File
+                        </button>
+                    </>
                 );
             case '/ingredient-lists':
                 return (
