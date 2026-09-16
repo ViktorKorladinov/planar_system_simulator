@@ -2,17 +2,16 @@
  * Trajectory Post-Processor for Multi-Mover Grid Simulation
  *
  * Design:
- * 1. By default, ALL movers (both loading and transit) travel strictly down the EXACT CENTER
- *    of tiles (offset = (0, 0)). This prevents wall-hugging, diagonal crab-walking, and speed disparities.
- * 2. Cooperative Yielding ("Scoot-Aside"):
- *    When a transit mover passes through a tile where another mover is loading/dispensing at tick t:
- *    - The transit mover takes its right-hand lane (+60px * n).
- *    - The loading mover cooperatively scoots to the opposite lane (-60px * n).
- *    - Center-to-center distance is 120px > 112px mover width (zero collision, 8px clearance).
- *    - At tick t+1, when the transiter exits, the loading mover smoothly returns to center (0, 0).
- * 3. Edge-Swap Collision Avoidance:
- *    When two movers pass each other head-on along the same edge (A -> B vs B -> A at the same tick),
- *    they veer into their respective right-hand lanes during the transit to pass safely.
+ * 1. By default, ALL movers travel down the EXACT CENTER of tiles (offset = (0, 0))
+ *    when traveling alone, avoiding wall-hugging and diagonal drifting.
+ * 2. Shared-Tile Collision Avoidance:
+ *    When 2 movers occupy the SAME tile at tick t:
+ *    - One loading/stationary + one transiting: loading scoots aside (-60px * n), transiting takes right lane (+60px * n).
+ *    - Two transiting movers (opposite directions): each takes its respective right lane (+60px * n1, +60px * n2), separated by 120px.
+ *    - Two transiting movers (same direction or perpendicular): split to opposite sides with >= 120px clearance.
+ *    - Two loading movers: split laterally.
+ * 3. Edge-Swap Passing (Head-on passing between adjacent tiles: A -> B vs B -> A at tick t -> t+1):
+ *    - Both movers shift into their opposing lateral lanes throughout the transition.
  * 4. Preservation of rest offsets for wait_rest movers.
  */
 
@@ -94,7 +93,7 @@ export function processMoverTrajectories(allPaths) {
         offsetX = (step.rest_offset_x || 0) * (CELL_SIZE / 2);
         offsetY = (step.rest_offset_y || 0) * (CELL_SIZE / 2);
       } else {
-        // By default, ALL movers travel dead-center to avoid diagonal drift & wall-hugging
+        // By default, ALL movers travel dead-center when alone
         offsetX = 0;
         offsetY = 0;
       }
@@ -109,6 +108,10 @@ export function processMoverTrajectories(allPaths) {
         offsetY,
         nx,
         ny,
+        inDx,
+        inDy,
+        outDx,
+        outDy,
         isMoving,
         mode,
         moverIdx,
@@ -116,8 +119,8 @@ export function processMoverTrajectories(allPaths) {
     });
   });
 
-  // Step 2: Cooperative Yielding on Shared Tiles
-  // Check each tick for tiles containing a loading/stationary mover and a passing mover
+  // Step 2: Shared-Tile Collision Avoidance
+  // Check each tick for any tile containing multiple movers (loading vs transit, transit vs transit, etc.)
   for (let t = 0; t < numSteps; t++) {
     const tileOccupants = new Map();
 
@@ -135,22 +138,57 @@ export function processMoverTrajectories(allPaths) {
     for (const [key, occupants] of tileOccupants.entries()) {
       if (occupants.length < 2) continue;
 
-      const transiting = occupants.find(s => s.isMoving && s.mode !== 'loading');
-      const loading = occupants.find(s => s.mode === 'loading' || !s.isMoving);
+      const transiting = occupants.filter(s => s.isMoving);
+      const stationary = occupants.filter(s => !s.isMoving);
 
-      if (transiting && loading) {
-        // Moving mover takes its right-hand lane (+nx, +ny)
-        transiting.offsetX = transiting.nx * LANE_OFFSET;
-        transiting.offsetY = transiting.ny * LANE_OFFSET;
+      if (transiting.length === 1 && stationary.length >= 1) {
+        // One transiting, one stationary/loading (cooperative scoot-aside)
+        const tr = transiting[0];
+        const st = stationary[0];
+        tr.offsetX = tr.nx * LANE_OFFSET;
+        tr.offsetY = tr.ny * LANE_OFFSET;
 
-        // Loading mover yields to opposite lane (-nx, -ny)
-        if (Math.abs(transiting.nx) > 0.001 || Math.abs(transiting.ny) > 0.001) {
-          loading.offsetX = -transiting.nx * LANE_OFFSET;
-          loading.offsetY = -transiting.ny * LANE_OFFSET;
+        if (Math.abs(tr.nx) > 0.001 || Math.abs(tr.ny) > 0.001) {
+          st.offsetX = -tr.nx * LANE_OFFSET;
+          st.offsetY = -tr.ny * LANE_OFFSET;
         } else {
-          loading.offsetX = -LANE_OFFSET;
+          st.offsetX = -LANE_OFFSET;
         }
-      } else if (occupants.length === 2 && occupants.every(s => s.mode === 'loading')) {
+      } else if (transiting.length >= 2) {
+        // TWO (or more) MOVERS ARE BOTH TRANSITING ON THE SAME TILE!
+        const m1 = transiting[0];
+        const m2 = transiting[1];
+
+        // Check relative directions using dot product of normals
+        const dot = m1.nx * m2.nx + m1.ny * m2.ny;
+        if (dot < -0.3) {
+          // Opposite directions (e.g. East vs West or North vs South):
+          // Each takes its own right-hand normal!
+          m1.offsetX = m1.nx * LANE_OFFSET;
+          m1.offsetY = m1.ny * LANE_OFFSET;
+          m2.offsetX = m2.nx * LANE_OFFSET;
+          m2.offsetY = m2.ny * LANE_OFFSET;
+        } else if (dot > 0.3) {
+          // Same direction: split left and right along m1's normal
+          m1.offsetX = m1.nx * LANE_OFFSET;
+          m1.offsetY = m1.ny * LANE_OFFSET;
+          m2.offsetX = -m1.nx * LANE_OFFSET;
+          m2.offsetY = -m1.ny * LANE_OFFSET;
+        } else {
+          // Perpendicular crossing (e.g. East vs South):
+          m1.offsetX = m1.nx * LANE_OFFSET;
+          m1.offsetY = m1.ny * LANE_OFFSET;
+          m2.offsetX = m2.nx * LANE_OFFSET;
+          m2.offsetY = m2.ny * LANE_OFFSET;
+          // Ensure they don't collide if normals overlap
+          const dist = Math.hypot(m1.offsetX - m2.offsetX, m1.offsetY - m2.offsetY);
+          if (dist < 112) {
+            m2.offsetX = -m1.nx * LANE_OFFSET;
+            m2.offsetY = -m1.ny * LANE_OFFSET;
+          }
+        }
+      } else {
+        // Multiple stationary / loading movers
         occupants[0].offsetX = -LANE_OFFSET;
         occupants[1].offsetX = LANE_OFFSET;
       }
@@ -169,18 +207,23 @@ export function processMoverTrajectories(allPaths) {
         const next2 = processed[m2][t + 1];
         if (!s2.isMoving) continue;
 
-        // Check if swapping adjacent tiles
+        // Check if swapping adjacent tiles between t and t+1
         if (s1.logicalX === next2.logicalX && s1.logicalY === next2.logicalY &&
             next1.logicalX === s2.logicalX && next1.logicalY === s2.logicalY) {
-          // Shift both into right-hand passing lanes during the swap
-          s1.offsetX = s1.nx * LANE_OFFSET;
-          s1.offsetY = s1.ny * LANE_OFFSET;
-          s2.offsetX = s2.nx * LANE_OFFSET;
-          s2.offsetY = s2.ny * LANE_OFFSET;
-          next1.offsetX = s1.nx * LANE_OFFSET;
-          next1.offsetY = s1.ny * LANE_OFFSET;
-          next2.offsetX = s2.nx * LANE_OFFSET;
-          next2.offsetY = s2.ny * LANE_OFFSET;
+          const dx = next1.logicalX - s1.logicalX;
+          const dy = next1.logicalY - s1.logicalY;
+          const norm = getRightHandNormal(dx, dy);
+
+          // Both movers shift into their opposing lateral passing lanes
+          s1.offsetX = norm.nx * LANE_OFFSET;
+          s1.offsetY = norm.ny * LANE_OFFSET;
+          next1.offsetX = norm.nx * LANE_OFFSET;
+          next1.offsetY = norm.ny * LANE_OFFSET;
+
+          s2.offsetX = -norm.nx * LANE_OFFSET;
+          s2.offsetY = -norm.ny * LANE_OFFSET;
+          next2.offsetX = -norm.nx * LANE_OFFSET;
+          next2.offsetY = -norm.ny * LANE_OFFSET;
         }
       }
     }
