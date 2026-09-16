@@ -93,6 +93,7 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER:-user}:${POSTGRES_PASSWORD:-password}@db:5432/${POSTGRES_DB:-dbname}
       CELERY_BROKER_URL: redis://redis:6379/0
       CELERY_RESULT_BACKEND: redis://redis:6379/0
+      BACKEND_URL: http://backend:8000
       CPLEX_PATH: ${CPLEX_PATH:-/opt/ibm/ILOG/CPLEX_Studio2211/cpoptimizer/bin/x86-64_linux/cpoptimizer}
       GRB_LICENSE_FILE: /opt/gurobi/gurobi.lic
     volumes:

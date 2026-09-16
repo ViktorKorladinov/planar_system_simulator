@@ -15,9 +15,14 @@ router = APIRouter(
 
 
 @router.get(
-    "/",
+    "",
     response_model=SimulationBatchGetResponseDTO,
     summary="Get a paginated list of simulations."
+)
+@router.get(
+    "/",
+    response_model=SimulationBatchGetResponseDTO,
+    include_in_schema=False
 )
 async def get_simulations(
         page: int = 1,

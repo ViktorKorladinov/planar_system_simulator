@@ -13,9 +13,13 @@ export default function Home() {
   const size = 20;
   const [hasNewSimulation, setHasNewSimulation] = useState(false);
 
+  const apiUrl = (!process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_URL.includes('backend'))
+    ? '/api/v1'
+    : process.env.NEXT_PUBLIC_API_URL;
+
   const fetchSimulations = useCallback(async (targetPage) => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/simulations/?page=${targetPage}&size=${size}`);
+      const response = await fetch(`${apiUrl}/simulations?page=${targetPage}&size=${size}`);
       if (!response.ok) throw new Error('Failed to fetch simulations');
 
       const data = await response.json();
@@ -24,14 +28,14 @@ export default function Home() {
     } catch (error) {
       console.error("Error fetching data:", error);
     }
-  }, [size]);
+  }, [apiUrl, size]);
 
   useEffect(() => {
     fetchSimulations(page);
   }, [page, fetchSimulations]);
 
   useEffect(() => {
-    const eventSource = new EventSource(`${process.env.NEXT_PUBLIC_API_URL}/notifications/stream`);
+    const eventSource = new EventSource(`${apiUrl}/notifications/stream`);
 
     eventSource.onmessage = (event) => {
       if (event.data === "experiment_finished") {
@@ -42,7 +46,7 @@ export default function Home() {
     return () => {
       eventSource.close();
     };
-  }, []);
+  }, [apiUrl]);
 
   const handleRefreshList = () => {
     setHasNewSimulation(false);

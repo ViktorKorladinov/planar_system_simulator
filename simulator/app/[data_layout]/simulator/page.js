@@ -12,10 +12,14 @@ export default function Simulator() {
     const params = useParams();
     const simulationId = params.data_layout; // This is the ID from the URL
 
+    const apiUrl = (!process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_URL.includes('backend'))
+        ? '/api/v1'
+        : process.env.NEXT_PUBLIC_API_URL;
+
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/simulations/${simulationId}`);
+                const response = await fetch(`${apiUrl}/simulations/${simulationId}`);
                 if (!response.ok) throw new Error('Simulation not found');
 
                 const jsonData = await response.json();

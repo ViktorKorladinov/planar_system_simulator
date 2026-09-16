@@ -1,6 +1,8 @@
 from pathlib import Path
+from typing import Optional
 
 from dotenv import load_dotenv
+from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -17,10 +19,18 @@ class Settings(BaseSettings):
 
     # --- Backend ---
     BACKEND_PORT: int = 8000
-    BACKEND_URL: str = f"http://localhost:{str(BACKEND_PORT)}"
+    BACKEND_URL: Optional[str] = None
     API_V1_PREFIX: str = "/api/v1"
-    BACKEND_API_URL: str = f"{BACKEND_URL}{API_V1_PREFIX}"
+    BACKEND_API_URL: Optional[str] = None
     APP_NAME: str = "Xplanar Experiment Configurator"
+
+    @model_validator(mode='after')
+    def compute_urls(self):
+        if not self.BACKEND_URL:
+            self.BACKEND_URL = f"http://localhost:{self.BACKEND_PORT}"
+        if not self.BACKEND_API_URL:
+            self.BACKEND_API_URL = f"{self.BACKEND_URL}{self.API_V1_PREFIX}"
+        return self
 
     # --- Celery ---
     CELERY_BROKER_URL: str = "redis://localhost:6379/0"
