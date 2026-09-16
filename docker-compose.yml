@@ -51,9 +51,9 @@ services:
       CELERY_BROKER_URL: redis://redis:6379/0
       CELERY_RESULT_BACKEND: redis://redis:6379/0
       BACKEND_PORT: 8000
-      BACKEND_URL: ${BACKEND_PUBLIC_URL:-http://localhost:8000}
-      SIMULATOR_ALLOWED_ORIGIN: ${SIMULATOR_ALLOWED_ORIGIN:-http://localhost:3000}
-      FRONTEND_ALLOWED_ORIGIN: ${FRONTEND_ALLOWED_ORIGIN:-http://localhost:5173}
+      BACKEND_URL: ${BACKEND_PUBLIC_URL:-http://localhost:${BACKEND_HOST_PORT:-8000}}
+      SIMULATOR_ALLOWED_ORIGIN: ${SIMULATOR_ALLOWED_ORIGIN:-http://localhost:${FE2_HOST_PORT:-3000}}
+      FRONTEND_ALLOWED_ORIGIN: ${FRONTEND_ALLOWED_ORIGIN:-http://localhost:${FE1_HOST_PORT:-5173}}
     expose:
       - "8000"
     ports:
@@ -110,7 +110,7 @@ services:
       dockerfile: Dockerfile
       args:
         VITE_BACKEND_URL: ${VITE_BACKEND_URL:-/api/v1}
-        VITE_SIMULATOR_URL: ${VITE_SIMULATOR_URL:-http://localhost:3000}
+        VITE_SIMULATOR_URL: ${VITE_SIMULATOR_URL:-http://localhost:${FE2_HOST_PORT:-3000}}
     container_name: planar_frontend
     restart: unless-stopped
     expose:
