@@ -40,7 +40,7 @@ export default function Grid({m, n, simulationData, fill}) {
   const requestRef = useRef();
   const previousTimeRef = useRef();
   const animateRef = useRef(0);
-  const progressRef = useRef(1);
+  const progressRef = useRef(0);
   const medicineRef = useRef('');
 
   // react to animation speed change
@@ -69,30 +69,27 @@ export default function Grid({m, n, simulationData, fill}) {
   }, [medicineInfo, matrix, m, medicineName, n, selected]);
 
   const consumeMove = useCallback(() => {
-    if (positions && positions.length > 0 && progressRef.current !==
-        positions[0].length - 1) {
+    if (positions && positions.length > 0 && progressRef.current < positions[0].length - 1) {
+      const nextStepIdx = progressRef.current + 1;
       let newCoords = [];
       for (const path of positions) {
-        const nextStep = path[progressRef.current + 1];
-        newCoords.push(nextStep);
+        newCoords.push(path[nextStepIdx]);
       }
       api.start(index => {
         const position = newCoords[index];
-        const pos = moversRefs.current[index];
 
         moversRefs.current[index] = {
           x: position.x,
           y: position.y,
         };
         return {
-          from: {x: pos.x, y: pos.y},
           to: {x: position.x, y: position.y},
           config: {duration: animateRef.current},
           immediate: animateRef.current === 0,
         };
       });
-      progressRef.current += 1;
-      setCounter(ct => ct + 1);
+      progressRef.current = nextStepIdx;
+      setCounter(nextStepIdx + 1);
       const updatedMatrix = [...matrix]; // Update heatmap
       for (const pos of newCoords) {
         const {logicalX, logicalY, mode} = pos;
@@ -103,7 +100,7 @@ export default function Grid({m, n, simulationData, fill}) {
       }
       setMatrix(updatedMatrix);
     }
-  }, [api, matrix, n, positions]);
+  }, [api, matrix, positions]);
 
   const animateV = useCallback(time => {
     if (previousTimeRef.current !== undefined) {
@@ -115,9 +112,9 @@ export default function Grid({m, n, simulationData, fill}) {
     } else {
       previousTimeRef.current = time;
     }
-    if (progressRef.current !==
-        positions[0].length) requestRef.current = requestAnimationFrame(
-        animateV); else progressRef.current -= 1;
+    if (positions && positions.length > 0 && progressRef.current < positions[0].length - 1) {
+      requestRef.current = requestAnimationFrame(animateV);
+    }
   }, [consumeMove, positions]);
 
   useEffect(() => {
