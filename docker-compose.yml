@@ -117,7 +117,7 @@ services:
     image: python:3.10-slim
     profiles: ["setup"]
     volumes:
-      - .:/installer:ro
+      - .:/installer
       - cplex_data:/opt/ibm
     command: >
       sh -c "if [ -f /installer/cplex_studio2211.linux_x86_64.bin ]; then
