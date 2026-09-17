@@ -86,11 +86,13 @@ export default function Grid({m, n, simulationData, fill}) {
           y: position.y,
         };
 
+        const stepDuration = animateRef.current > 0 ? animateRef.current : 250;
+
         return {
           from: {x: pos.x, y: pos.y},
           to: {x: position.x, y: position.y},
-          config: {duration: animateRef.current},
-          immediate: animateRef.current === 0,
+          config: {duration: stepDuration},
+          immediate: false,
         };
       });
       progressRef.current = nextStepIdx;
@@ -106,6 +108,50 @@ export default function Grid({m, n, simulationData, fill}) {
       setMatrix(updatedMatrix);
     }
   }, [api, matrix, positions]);
+
+  const goToFrame = useCallback((targetIdx, isAnimated = false) => {
+    if (!positions || positions.length === 0) return;
+    const clampedIdx = Math.max(0, Math.min(targetIdx, positions[0].length - 1));
+    const targetCoords = positions.map(path => path[clampedIdx]);
+
+    api.start(index => {
+      const position = targetCoords[index];
+      const pos = moversRefs.current[index];
+
+      moversRefs.current[index] = {
+        x: position.x,
+        y: position.y,
+      };
+
+      return {
+        from: {x: pos.x, y: pos.y},
+        to: {x: position.x, y: position.y},
+        config: {duration: isAnimated ? 250 : 0},
+        immediate: !isAnimated,
+      };
+    });
+
+    progressRef.current = clampedIdx;
+    setCounter(clampedIdx + 1);
+
+    // Recompute heatmap accumulation up to clampedIdx
+    const newMatrix = Array.from({length: m}, () => Array(n).fill(0));
+    for (let s = 0; s <= clampedIdx; s++) {
+      for (const path of positions) {
+        const step = path[s];
+        if (step && step.mode === 'transit') {
+          newMatrix[step.logicalX][step.logicalY] += 1;
+        }
+      }
+    }
+    setMatrix(newMatrix);
+  }, [api, m, n, positions]);
+
+  const prevMove = useCallback(() => {
+    if (progressRef.current > 0) {
+      goToFrame(progressRef.current - 1, true);
+    }
+  }, [goToFrame]);
 
   const animateV = useCallback(time => {
     if (previousTimeRef.current !== undefined) {
@@ -238,8 +284,8 @@ export default function Grid({m, n, simulationData, fill}) {
     </svg>
     <Toolbar counter={counter} length={positions[0]?.length || 0} animate={speed}
              medicineName={medicineName}
-             consumeMove={consumeMove} setAnimate={setSpeed}
-             setMedicine={setMedicine} ganttData={ganttData}/>
+             consumeMove={consumeMove} prevMove={prevMove} goToFrame={goToFrame}
+             setAnimate={setSpeed} setMedicine={setMedicine} ganttData={ganttData}/>
   </>);
 
 }

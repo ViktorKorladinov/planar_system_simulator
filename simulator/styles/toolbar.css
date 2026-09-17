@@ -118,3 +118,42 @@
 .barDetached .chartButtons{
     display: none;
 }
+
+.frameSlider {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 6px;
+    border-radius: 3px;
+    background: #94a3b8;
+    outline: none;
+    cursor: pointer;
+    width: 150px;
+    margin: 0 10px;
+    transition: background 0.2s;
+}
+
+.frameSlider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: rgb(36, 36, 89);
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    transition: transform 0.1s;
+}
+
+.frameSlider::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+}
+
+.frameSlider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: rgb(36, 36, 89);
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
