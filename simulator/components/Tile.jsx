@@ -46,8 +46,8 @@ const Tile = memo(function NonMemoTile({
             WebkitTransition: trans,
           }}/>
     <text ref={textRef} y={stateY} x={stateX} width={w} height={h}
-          fontFamily="Verdana" fontSize="50"
-          fill="black">{idx}</text>
+          fontFamily="Verdana" fontSize="50" fontWeight="bold"
+          fill={idx >= 8 ? "#ffffff" : "#1e293b"}>{idx}</text>
   </g>);
 });
 
