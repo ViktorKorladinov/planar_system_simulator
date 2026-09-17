@@ -2,13 +2,37 @@
 import React, {useEffect, useRef, useState} from 'react';
 import '../styles/toolbar.css'
 
-function Toolbar({counter, length, animate, setAnimate, consumeMove, prevMove, goToFrame, medicineName, ganttData}) {
+function Toolbar({counter, length, animate, setAnimate, consumeMove, prevMove, goToFrame, medicineName, ganttData, moverCount}) {
     const [selectedGantt, setSelectedGantt] = useState(0)
     const [btnStates, setStates] = useState(["", "", "", "", ""])
     const [barMode, setBarMode] = useState('barAttached')
     const gridIframe = useRef(null);
     const [contentWindow, setContentWindow] = useState(null)
     const contentWindowRef = useRef();
+
+    const calculateHeight = React.useCallback(() => {
+        const count = moverCount || 12;
+        if (typeof window !== 'undefined' && window.innerHeight < 860) {
+            // Compact mode for 13" MacBook Air and smaller displays (viewport height < 860px)
+            return Math.max(190, 38 + count * 18);
+        }
+        // Standard mode for large monitors
+        return Math.max(250, 48 + count * 22);
+    }, [moverCount]);
+
+    const [iframeHeight, setIframeHeight] = useState(calculateHeight);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setIframeHeight(calculateHeight());
+        };
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, [calculateHeight]);
+
+    useEffect(() => {
+        setIframeHeight(calculateHeight());
+    }, [calculateHeight]);
 
     const ganttNamesArray = ganttData?.names || [];
 
@@ -108,6 +132,8 @@ function Toolbar({counter, length, animate, setAnimate, consumeMove, prevMove, g
             </div>
         </div>
         <iframe ref={gridIframe} onLoad={handleGrid}
+                scrolling="no"
+                style={{ height: `${iframeHeight}px`, minHeight: `${iframeHeight}px`, width: '100%', border: 'none', display: 'block', overflow: 'hidden' }}
                 src={ganttNamesArray.length > 0 ? `${ganttData?.api_plot_url}/${ganttNamesArray[selectedGantt]}` : ""} title="Gantt"/>
     </div>);
 }

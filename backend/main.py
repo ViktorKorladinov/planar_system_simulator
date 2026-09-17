@@ -14,7 +14,8 @@ configure_logging()
 app = FastAPI(title=settings.APP_NAME)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[settings.SIMULATOR_ALLOWED_ORIGIN, settings.FRONTEND_ALLOWED_ORIGIN],
+    allow_origins=[settings.SIMULATOR_ALLOWED_ORIGIN, settings.FRONTEND_ALLOWED_ORIGIN, "http://localhost:5173", "http://localhost:5174", "http://localhost:3000"],
+    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1)(:\d+)?",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -285,7 +285,8 @@ export default function Grid({m, n, simulationData, fill}) {
     <Toolbar counter={counter} length={positions[0]?.length || 0} animate={speed}
              medicineName={medicineName}
              consumeMove={consumeMove} prevMove={prevMove} goToFrame={goToFrame}
-             setAnimate={setSpeed} setMedicine={setMedicine} ganttData={ganttData}/>
+             setAnimate={setSpeed} setMedicine={setMedicine} ganttData={ganttData}
+             moverCount={positions.length}/>
   </>);
 
 }

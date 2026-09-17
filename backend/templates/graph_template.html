@@ -4,14 +4,24 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Plotly graph</title>
-    <style>html, body, body > div {
-        height: 100%;
-        overflow: hidden
-    }</style>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden !important;
+        }
+        body > div, .plotly-graph-div {
+            width: 100%;
+            height: 100%;
+            overflow: hidden !important;
+        }
+    </style>
 
 </head>
 <body>
-<span id="last_mover" data-value="{{ last_mover }}"></span>
+<span id="last_mover" style="display:none;" data-value="{{ last_mover }}"></span>
 {{ fig }}
 </body>
 <script>
@@ -55,10 +65,15 @@
     }
 
     window.addEventListener('message', (event) => {
-        if (event.data.type === 'UPDATE_MARKER') {
+        if (event.data && event.data.type === 'UPDATE_MARKER') {
             updateMarker(event.data.position);
         }
-    })
+    });
 
+    window.addEventListener('resize', () => {
+        if (plotlyPlot) {
+            Plotly.Plots.resize(plotlyPlot);
+        }
+    });
 </script>
 </html>

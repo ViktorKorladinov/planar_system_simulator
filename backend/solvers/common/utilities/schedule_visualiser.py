@@ -131,6 +131,9 @@ class ScheduleVisualizer:
             graph_type = self._get_graph_type(graph_type)
             col_name = graph_type.capitalize()
             df[col_name] = df[col_name].astype(str)
+            sorted_movers = self.movers if self.movers else sorted(list(df["Mover"].unique()))
+            mover_count = len(sorted_movers)
+            calculated_height = max(320, 60 + mover_count * 30)
             graph = px.bar(
                 df,
                 base="Start",
@@ -138,10 +141,23 @@ class ScheduleVisualizer:
                 y="Mover",
                 color=graph_type,
                 orientation='h',
-                title=f'Colored by {graph_type}'
+                category_orders={"Mover": sorted_movers}
             )
-            graph.update_yaxes(autorange="reversed")
-            graph.layout.xaxis.type = 'linear'
+            graph.update_yaxes(
+                type="category",
+                categoryorder="array",
+                categoryarray=sorted_movers,
+                tickmode="array",
+                tickvals=sorted_movers,
+                ticktext=sorted_movers,
+                autorange="reversed",
+                title_text="Mover",
+                automargin=True
+            )
+            graph.update_xaxes(
+                title_text="Length",
+                automargin=True
+            )
 
             for trace in graph.data:
                 if raw_graph_type == GraphType.DISPENSED_TYPE:
@@ -178,7 +194,19 @@ class ScheduleVisualizer:
                 xref='x', yref='paper',
                 name="timeline-marker"
             )
-            graph.update_layout(showlegend=show_legend)
+            graph.update_layout(
+                showlegend=show_legend,
+                margin=dict(l=65, r=20, t=18, b=22),
+                title=dict(
+                    text=f'Colored by {graph_type}',
+                    font=dict(size=13),
+                    x=0.01,
+                    y=0.99,
+                    xanchor='left',
+                    yanchor='top'
+                ),
+                autosize=True
+            )
             if should_render:
                 to_render.append((graph, raw_graph_type))
         html_dict = self.render_html(to_render)

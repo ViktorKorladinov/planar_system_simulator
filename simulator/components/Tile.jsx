@@ -1,5 +1,5 @@
 import React, {memo, useEffect, useRef, useState} from 'react';
-import {getColorFromGradient} from '@/utils/colorUtilities';
+import {getColorFromGradient, getTextColorForIndex} from '@/utils/colorUtilities';
 
 const Tile = memo(function NonMemoTile({
   w,
@@ -47,7 +47,7 @@ const Tile = memo(function NonMemoTile({
           }}/>
     <text ref={textRef} y={stateY} x={stateX} width={w} height={h}
           fontFamily="Verdana" fontSize="50" fontWeight="bold"
-          fill={idx >= 8 ? "#ffffff" : "#1e293b"}>{idx}</text>
+          fill={getTextColorForIndex(idx)}>{idx}</text>
   </g>);
 });
 
