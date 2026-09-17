@@ -94,7 +94,7 @@ export default function Grid({m, n, simulationData, fill}) {
         }
 
         const totalDuration = animateRef.current;
-        const fastDuration = Math.min(50, Math.max(10, Math.floor(totalDuration * 0.1)));
+        const fastDuration = totalDuration >= 150 ? 100 : Math.max(10, Math.floor(totalDuration * 0.35));
         const remDuration = Math.max(1, totalDuration - fastDuration);
 
         const sameTile = prevStep && prevStep.logicalX === nextStep.logicalX && prevStep.logicalY === nextStep.logicalY;
