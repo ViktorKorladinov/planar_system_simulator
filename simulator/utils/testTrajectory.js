@@ -123,6 +123,87 @@ function runTests() {
     assert(separationY === 120, `Edge swap: Continuous lateral clearance is ${separationY}px`);
   }
 
+  // Test 5: Dual transit in opposite directions on the same tile
+  {
+    const paths = [
+      [
+        { x: 0, y: 2, mode: 'transit' },
+        { x: 1, y: 2, mode: 'transit' },
+        { x: 2, y: 2, mode: 'transit' },
+      ],
+      [
+        { x: 2, y: 2, mode: 'transit' },
+        { x: 1, y: 2, mode: 'transit' },
+        { x: 0, y: 2, mode: 'transit' },
+      ]
+    ];
+    const res = processMoverTrajectories(paths);
+    const m1 = res[0][1];
+    const m2 = res[1][1];
+    const dist = Math.hypot(m1.x - m2.x, m1.y - m2.y);
+    assert(dist >= 120, `Dual transit (opposite): clearance on tile is ${dist}px (>= 120px)`);
+  }
+
+  // Test 6: Dual transit in same direction on the same tile
+  {
+    const paths = [
+      [
+        { x: 0, y: 0, mode: 'transit' },
+        { x: 1, y: 0, mode: 'transit' },
+        { x: 2, y: 0, mode: 'transit' },
+      ],
+      [
+        { x: 0, y: 0, mode: 'transit' },
+        { x: 1, y: 0, mode: 'transit' },
+        { x: 2, y: 0, mode: 'transit' },
+      ]
+    ];
+    const res = processMoverTrajectories(paths);
+    const m1 = res[0][1];
+    const m2 = res[1][1];
+    const dist = Math.hypot(m1.x - m2.x, m1.y - m2.y);
+    assert(dist >= 120, `Dual transit (same dir): clearance on tile is ${dist}px (>= 120px)`);
+  }
+
+  // Test 7: Dual transit crossing perpendicularly on the same tile
+  {
+    const paths = [
+      // Mover 1 moving East through (1, 1)
+      [
+        { x: 0, y: 1, mode: 'transit' },
+        { x: 1, y: 1, mode: 'transit' },
+        { x: 2, y: 1, mode: 'transit' },
+      ],
+      // Mover 2 moving South through (1, 1)
+      [
+        { x: 1, y: 0, mode: 'transit' },
+        { x: 1, y: 1, mode: 'transit' },
+        { x: 1, y: 2, mode: 'transit' },
+      ]
+    ];
+    const res = processMoverTrajectories(paths);
+    const m1 = res[0][1];
+    const m2 = res[1][1];
+    const dist = Math.hypot(m1.x - m2.x, m1.y - m2.y);
+    assert(dist >= 120, `Dual transit (perpendicular): diagonal clearance is ${dist.toFixed(1)}px (>= 120px)`);
+  }
+
+  // Test 8: Turning corner waypoint holds outer track
+  {
+    // Eastbound then Southbound at (1, 1): corner waypoint should be (-60, +60)
+    const paths = [
+      [
+        { x: 0, y: 1, mode: 'transit' },
+        { x: 1, y: 1, mode: 'transit' },
+        { x: 1, y: 2, mode: 'transit' },
+      ]
+    ];
+    const res = processMoverTrajectories(paths);
+    const turnStep = res[0][1];
+    assert(turnStep.offsetX === -LANE_OFFSET && turnStep.offsetY === LANE_OFFSET,
+      `Turning 90°: corner waypoint offset is (${turnStep.offsetX}, ${turnStep.offsetY})`);
+  }
+
   console.log(`\nTests finished: ${passed} passed, ${failed} failed.`);
   if (failed > 0) process.exit(1);
 }

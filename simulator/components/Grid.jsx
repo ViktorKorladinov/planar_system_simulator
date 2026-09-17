@@ -101,8 +101,26 @@ export default function Grid({m, n, simulationData, fill}) {
         const wasCentered = prevStep && (prevStep.offsetX || 0) === 0 && (prevStep.offsetY || 0) === 0;
         const isCentered = (nextStep.offsetX || 0) === 0 && (nextStep.offsetY || 0) === 0;
 
-        // 1. Same-tile action (e.g. scoot-aside yield or returning to center at dispenser)
+        // 1. Same-tile action (yield scoot-aside or returning to center after yield)
         if (sameTile) {
+          if (wasCentered && !isCentered) {
+            // Scooting aside to yield: shift quickly in fastDuration, hold for remaining duration
+            return {
+              to: async next => {
+                await next({x: position.x, y: position.y, config: {duration: fastDuration}});
+                await next({x: position.x, y: position.y, config: {duration: remDuration}});
+              },
+            };
+          }
+          if (!wasCentered && isCentered) {
+            // Returning to center after yield: wait for remDuration while passing mover exits, then slide into center
+            return {
+              to: async next => {
+                await next({x: pos.x, y: pos.y, config: {duration: remDuration}});
+                await next({x: position.x, y: position.y, config: {duration: fastDuration}});
+              },
+            };
+          }
           return {
             to: {x: position.x, y: position.y},
             config: {duration: fastDuration},
