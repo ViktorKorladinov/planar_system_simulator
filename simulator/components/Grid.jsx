@@ -94,10 +94,12 @@ export default function Grid({m, n, simulationData, fill}) {
         }
 
         const totalDuration = animateRef.current;
-        const fastDuration = Math.min(60, Math.max(20, Math.floor(totalDuration * 0.15)));
+        const fastDuration = Math.min(50, Math.max(10, Math.floor(totalDuration * 0.1)));
         const remDuration = Math.max(1, totalDuration - fastDuration);
 
         const sameTile = prevStep && prevStep.logicalX === nextStep.logicalX && prevStep.logicalY === nextStep.logicalY;
+        const wasCentered = prevStep && (prevStep.offsetX || 0) === 0 && (prevStep.offsetY || 0) === 0;
+        const isCentered = (nextStep.offsetX || 0) === 0 && (nextStep.offsetY || 0) === 0;
 
         // 1. Same-tile action (e.g. scoot-aside yield or returning to center at dispenser)
         if (sameTile) {
@@ -107,27 +109,27 @@ export default function Grid({m, n, simulationData, fill}) {
           };
         }
 
-        // 2. Exiting dispenser: shift laterally into lane almost instantly, then travel forward
-        if (prevStep && prevStep.mode === 'loading' && nextStep.mode === 'transit') {
+        // 2. Exiting dispenser: shift laterally into lane in 50ms, then travel forward
+        if (wasCentered && !isCentered) {
           const intermediateX = pos.x + (nextStep.offsetX || 0);
           const intermediateY = pos.y + (nextStep.offsetY || 0);
           return {
-            to: [
-              {x: intermediateX, y: intermediateY, config: {duration: fastDuration}},
-              {x: position.x, y: position.y, config: {duration: remDuration}},
-            ],
+            to: async next => {
+              await next({x: intermediateX, y: intermediateY, config: {duration: fastDuration}});
+              await next({x: position.x, y: position.y, config: {duration: remDuration}});
+            },
           };
         }
 
-        // 3. Entering dispenser: travel along lane to tile, then snap into center almost instantly
-        if (prevStep && prevStep.mode === 'transit' && nextStep.mode === 'loading') {
+        // 3. Entering dispenser: travel along lane to tile, then snap into center in 50ms
+        if (!wasCentered && isCentered) {
           const intermediateX = position.x + (prevStep.offsetX || 0);
           const intermediateY = position.y + (prevStep.offsetY || 0);
           return {
-            to: [
-              {x: intermediateX, y: intermediateY, config: {duration: remDuration}},
-              {x: position.x, y: position.y, config: {duration: fastDuration}},
-            ],
+            to: async next => {
+              await next({x: intermediateX, y: intermediateY, config: {duration: remDuration}});
+              await next({x: position.x, y: position.y, config: {duration: fastDuration}});
+            },
           };
         }
 
