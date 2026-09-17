@@ -40,7 +40,7 @@ export default function Grid({m, n, simulationData, fill}) {
   const requestRef = useRef();
   const previousTimeRef = useRef();
   const animateRef = useRef(0);
-  const progressRef = useRef(1);
+  const progressRef = useRef(0);
   const medicineRef = useRef('');
 
   // react to animation speed change
@@ -69,30 +69,76 @@ export default function Grid({m, n, simulationData, fill}) {
   }, [medicineInfo, matrix, m, medicineName, n, selected]);
 
   const consumeMove = useCallback(() => {
-    if (positions && positions.length > 0 && progressRef.current !==
-        positions[0].length - 1) {
+    if (positions && positions.length > 0 && progressRef.current < positions[0].length - 1) {
+      const nextStepIdx = progressRef.current + 1;
       let newCoords = [];
       for (const path of positions) {
-        const nextStep = path[progressRef.current + 1];
-        newCoords.push(nextStep);
+        newCoords.push(path[nextStepIdx]);
       }
       api.start(index => {
         const position = newCoords[index];
         const pos = moversRefs.current[index];
+        const prevStep = positions[index]?.[progressRef.current];
+        const nextStep = position;
 
         moversRefs.current[index] = {
           x: position.x,
           y: position.y,
         };
+
+        if (animateRef.current === 0) {
+          return {
+            to: {x: position.x, y: position.y},
+            immediate: true,
+          };
+        }
+
+        const totalDuration = animateRef.current;
+        const fastDuration = Math.min(60, Math.max(20, Math.floor(totalDuration * 0.15)));
+        const remDuration = Math.max(1, totalDuration - fastDuration);
+
+        const sameTile = prevStep && prevStep.logicalX === nextStep.logicalX && prevStep.logicalY === nextStep.logicalY;
+
+        // 1. Same-tile action (e.g. scoot-aside yield or returning to center at dispenser)
+        if (sameTile) {
+          return {
+            to: {x: position.x, y: position.y},
+            config: {duration: fastDuration},
+          };
+        }
+
+        // 2. Exiting dispenser: shift laterally into lane almost instantly, then travel forward
+        if (prevStep && prevStep.mode === 'loading' && nextStep.mode === 'transit') {
+          const intermediateX = pos.x + (nextStep.offsetX || 0);
+          const intermediateY = pos.y + (nextStep.offsetY || 0);
+          return {
+            to: [
+              {x: intermediateX, y: intermediateY, config: {duration: fastDuration}},
+              {x: position.x, y: position.y, config: {duration: remDuration}},
+            ],
+          };
+        }
+
+        // 3. Entering dispenser: travel along lane to tile, then snap into center almost instantly
+        if (prevStep && prevStep.mode === 'transit' && nextStep.mode === 'loading') {
+          const intermediateX = position.x + (prevStep.offsetX || 0);
+          const intermediateY = position.y + (prevStep.offsetY || 0);
+          return {
+            to: [
+              {x: intermediateX, y: intermediateY, config: {duration: remDuration}},
+              {x: position.x, y: position.y, config: {duration: fastDuration}},
+            ],
+          };
+        }
+
+        // 4. Standard transit between tiles
         return {
-          from: {x: pos.x, y: pos.y},
           to: {x: position.x, y: position.y},
-          config: {duration: animateRef.current},
-          immediate: animateRef.current === 0,
+          config: {duration: totalDuration},
         };
       });
-      progressRef.current += 1;
-      setCounter(ct => ct + 1);
+      progressRef.current = nextStepIdx;
+      setCounter(nextStepIdx + 1);
       const updatedMatrix = [...matrix]; // Update heatmap
       for (const pos of newCoords) {
         const {logicalX, logicalY, mode} = pos;
@@ -103,7 +149,7 @@ export default function Grid({m, n, simulationData, fill}) {
       }
       setMatrix(updatedMatrix);
     }
-  }, [api, matrix, n, positions]);
+  }, [api, matrix, positions]);
 
   const animateV = useCallback(time => {
     if (previousTimeRef.current !== undefined) {
@@ -115,9 +161,9 @@ export default function Grid({m, n, simulationData, fill}) {
     } else {
       previousTimeRef.current = time;
     }
-    if (progressRef.current !==
-        positions[0].length) requestRef.current = requestAnimationFrame(
-        animateV); else progressRef.current -= 1;
+    if (positions && positions.length > 0 && progressRef.current < positions[0].length - 1) {
+      requestRef.current = requestAnimationFrame(animateV);
+    }
   }, [consumeMove, positions]);
 
   useEffect(() => {
