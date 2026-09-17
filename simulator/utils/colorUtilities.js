@@ -11,16 +11,18 @@ export function getColorFromGradientRGB(index, length) {
 export function getColorFromGradient(index, maxPath) {
     if (!index || index <= 0) return '#ffffff';
 
-    // Ramped-up traffic saturation: tiles reach deep red around 10-15 visits
-    const effectiveMax = Math.max(6, Math.min(20, Math.floor((maxPath || 60) * 0.15)));
-    const ratio = Math.min(1, Math.max(0, index / effectiveMax));
+    // Proportionate to overall steps (maxPath):
+    // Bottlenecked tiles typically receive ~20-25% of total simulation steps
+    const ceiling = Math.max(6, Math.round((maxPath || 50) * 0.22));
+    const rawRatio = Math.min(1, index / ceiling);
 
-    // Thermal heatmap scale:
-    // Low: bright warm yellow (hsl(50, 100%, 78%))
-    // Mid: vivid orange (hsl(28, 100%, 58%))
-    // High: deep crimson red (hsl(0, 100%, 42%))
-    const hue = Math.round(50 * (1 - ratio));
-    const lightness = Math.round(78 - 36 * Math.pow(ratio, 0.8));
+    // Non-linear power curve: starts off very slow (subtle pale tint),
+    // then warms through gold and orange, hitting deep RED RED at peak
+    const t = Math.pow(rawRatio, 1.7);
 
-    return `hsl(${hue}, 100%, ${lightness}%)`;
+    const hue = Math.round(54 * (1 - t));
+    const lightness = Math.round(92 - 50 * t);
+    const saturation = Math.round(70 + 30 * t);
+
+    return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
 }
