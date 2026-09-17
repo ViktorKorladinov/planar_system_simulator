@@ -86,75 +86,11 @@ export default function Grid({m, n, simulationData, fill}) {
           y: position.y,
         };
 
-        if (animateRef.current === 0) {
-          return {
-            to: {x: position.x, y: position.y},
-            immediate: true,
-          };
-        }
-
-        const totalDuration = animateRef.current;
-        const fastDuration = totalDuration >= 150 ? 100 : Math.max(10, Math.floor(totalDuration * 0.35));
-        const remDuration = Math.max(1, totalDuration - fastDuration);
-
-        const sameTile = prevStep && prevStep.logicalX === nextStep.logicalX && prevStep.logicalY === nextStep.logicalY;
-        const wasCentered = prevStep && (prevStep.offsetX || 0) === 0 && (prevStep.offsetY || 0) === 0;
-        const isCentered = (nextStep.offsetX || 0) === 0 && (nextStep.offsetY || 0) === 0;
-
-        // 1. Same-tile action (yield scoot-aside or returning to center after yield)
-        if (sameTile) {
-          if (wasCentered && !isCentered) {
-            // Scooting aside to yield: shift quickly in fastDuration, hold for remaining duration
-            return {
-              to: async next => {
-                await next({x: position.x, y: position.y, config: {duration: fastDuration}});
-                await next({x: position.x, y: position.y, config: {duration: remDuration}});
-              },
-            };
-          }
-          if (!wasCentered && isCentered) {
-            // Returning to center after yield: wait for remDuration while passing mover exits, then slide into center
-            return {
-              to: async next => {
-                await next({x: pos.x, y: pos.y, config: {duration: remDuration}});
-                await next({x: position.x, y: position.y, config: {duration: fastDuration}});
-              },
-            };
-          }
-          return {
-            to: {x: position.x, y: position.y},
-            config: {duration: fastDuration},
-          };
-        }
-
-        // 2. Exiting dispenser: shift laterally into lane in 50ms, then travel forward
-        if (wasCentered && !isCentered) {
-          const intermediateX = pos.x + (nextStep.offsetX || 0);
-          const intermediateY = pos.y + (nextStep.offsetY || 0);
-          return {
-            to: async next => {
-              await next({x: intermediateX, y: intermediateY, config: {duration: fastDuration}});
-              await next({x: position.x, y: position.y, config: {duration: remDuration}});
-            },
-          };
-        }
-
-        // 3. Entering dispenser: travel along lane to tile, then snap into center in 50ms
-        if (!wasCentered && isCentered) {
-          const intermediateX = position.x + (prevStep.offsetX || 0);
-          const intermediateY = position.y + (prevStep.offsetY || 0);
-          return {
-            to: async next => {
-              await next({x: intermediateX, y: intermediateY, config: {duration: remDuration}});
-              await next({x: position.x, y: position.y, config: {duration: fastDuration}});
-            },
-          };
-        }
-
-        // 4. Standard transit between tiles
         return {
+          from: {x: pos.x, y: pos.y},
           to: {x: position.x, y: position.y},
-          config: {duration: totalDuration},
+          config: {duration: animateRef.current},
+          immediate: animateRef.current === 0,
         };
       });
       progressRef.current = nextStepIdx;
@@ -249,11 +185,55 @@ export default function Grid({m, n, simulationData, fill}) {
         {placeTiles()}
       </g>
       {srpingVals.map((spring, id) => {
+        const currentStep = positions[id]?.[progressRef.current];
+        const isMulti = currentStep && currentStep.stackCount > 1;
+        const isTopMover = currentStep && currentStep.stackIdx === currentStep.stackCount - 1;
+
         return (
-            <animated.rect key={`mover${id}`} x={spring['x']} y={spring['y']}
-                           width={MOVER_SIZE} height={MOVER_SIZE} style={{
-              fill: `url(#bgPattern${id})`,
-            }} rx="15">{id}</animated.rect>);
+          <g key={`moverGroup${id}`}>
+            <animated.rect
+              key={`mover${id}`}
+              x={spring['x']}
+              y={spring['y']}
+              width={MOVER_SIZE}
+              height={MOVER_SIZE}
+              style={{
+                fill: `url(#bgPattern${id})`,
+                filter: isMulti
+                  ? 'drop-shadow(0px 4px 8px rgba(0,0,0,0.5))'
+                  : 'drop-shadow(0px 2px 4px rgba(0,0,0,0.25))',
+                stroke: isMulti ? '#fbbf24' : '#ffffff',
+                strokeWidth: isMulti ? '3' : '2',
+                opacity: 0.94,
+              }}
+              rx="15"
+            />
+            {/* Multi-mover badge: displayed on top mover when 2+ movers share a tile */}
+            {isMulti && isTopMover && (
+              <g pointerEvents="none">
+                <animated.circle
+                  cx={spring.x.to(x => x + MOVER_SIZE - 12)}
+                  cy={spring.y.to(y => y + 12)}
+                  r="14"
+                  fill="#ef4444"
+                  stroke="#ffffff"
+                  strokeWidth="2.5"
+                />
+                <animated.text
+                  x={spring.x.to(x => x + MOVER_SIZE - 12)}
+                  y={spring.y.to(y => y + 16.5)}
+                  textAnchor="middle"
+                  fill="#ffffff"
+                  fontSize="12"
+                  fontWeight="bold"
+                  fontFamily="sans-serif"
+                >
+                  {`×${currentStep.stackCount}`}
+                </animated.text>
+              </g>
+            )}
+          </g>
+        );
       })}
     </svg>
     <Toolbar counter={counter} length={positions[0]?.length || 0} animate={speed}
