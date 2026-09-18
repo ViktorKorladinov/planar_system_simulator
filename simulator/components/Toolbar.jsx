@@ -82,6 +82,12 @@ function Toolbar({counter, length, animate, setAnimate, consumeMove, prevMove, g
             return <div className="text-xs medicine">{splitMedicineName}</div>
     }
 
+    const plotBaseUrl = ganttData?.api_plot_url ? (
+        (ganttData.api_plot_url.startsWith('http')
+            ? new URL(ganttData.api_plot_url).pathname
+            : ganttData.api_plot_url).replace(/\/$/, '')
+    ) : '';
+
     return (<div className={barMode}>
         <div className="toolbarWrapper">
             {showMedicine()}
@@ -134,7 +140,7 @@ function Toolbar({counter, length, animate, setAnimate, consumeMove, prevMove, g
         <iframe ref={gridIframe} onLoad={handleGrid}
                 scrolling="no"
                 style={{ height: `${iframeHeight}px`, minHeight: `${iframeHeight}px`, width: '100%', border: 'none', display: 'block', overflow: 'hidden' }}
-                src={ganttNamesArray.length > 0 ? `${ganttData?.api_plot_url}/${ganttNamesArray[selectedGantt]}` : ""} title="Gantt"/>
+                src={ganttNamesArray.length > 0 && plotBaseUrl ? `${plotBaseUrl}/${ganttNamesArray[selectedGantt]}` : ""} title="Gantt"/>
     </div>);
 }
 
