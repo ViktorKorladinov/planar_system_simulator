@@ -2,13 +2,15 @@
 import React, {useEffect, useRef, useState} from 'react';
 import '../styles/toolbar.css'
 
-function Toolbar({counter, length, animate, setAnimate, consumeMove, prevMove, goToFrame, medicineName, ganttData, moverCount}) {
+function Toolbar({counter, length, animate, setAnimate, consumeMove, prevMove, goToFrame, medicineName, ganttData, moverCount, hideGantt}) {
     const [selectedGantt, setSelectedGantt] = useState(0)
     const [btnStates, setStates] = useState(["", "", "", "", ""])
     const [barMode, setBarMode] = useState('barAttached')
     const gridIframe = useRef(null);
     const [contentWindow, setContentWindow] = useState(null)
     const contentWindowRef = useRef();
+
+    const shouldHideGantt = Boolean(hideGantt) || (typeof window !== 'undefined' && (new URLSearchParams(window.location.search).get('hide_gantt') === 'true' || new URLSearchParams(window.location.search).get('no_gantt') === 'true'));
 
     const [ganttHeightMode, setGanttHeightMode] = useState('auto'); // 'auto', 'compact', 'standard'
     const isEmbedded = typeof window !== 'undefined' && window.self !== window.top;
@@ -135,45 +137,51 @@ function Toolbar({counter, length, animate, setAnimate, consumeMove, prevMove, g
                     </button>
                     <button onClick={() => select(0, -1)}><span>Pause</span></button>
                 </div>
-                <button
-                    className="separate"
-                    onClick={() => setBarMode(state => state === 'barAttached' ? 'barDetached' : 'barAttached')}
-                    title={barMode === 'barAttached' ? 'Hide Gantt chart and float toolbar' : 'Show and attach Gantt chart'}
-                >
-                    <span>{barMode === 'barAttached' ? 'Detach' : 'Attach'}</span>
-                </button>
-                {barMode === 'barAttached' && (
-                    <button
-                        type="button"
-                        onClick={() => setGanttHeightMode(mode => (mode === 'compact' || (mode === 'auto' && isEmbedded)) ? 'standard' : 'compact')}
-                        title="Toggle compact or expanded Gantt height"
-                    >
-                        <span>{(ganttHeightMode === 'compact' || (ganttHeightMode === 'auto' && isEmbedded)) ? 'Expand Gantt' : 'Compact Gantt'}</span>
-                    </button>
-                )}
+                {!shouldHideGantt && (
+                    <>
+                        <button
+                            className="separate"
+                            onClick={() => setBarMode(state => state === 'barAttached' ? 'barDetached' : 'barAttached')}
+                            title={barMode === 'barAttached' ? 'Hide Gantt chart and float toolbar' : 'Show and attach Gantt chart'}
+                        >
+                            <span>{barMode === 'barAttached' ? 'Detach' : 'Attach'}</span>
+                        </button>
+                        {barMode === 'barAttached' && (
+                            <button
+                                type="button"
+                                onClick={() => setGanttHeightMode(mode => (mode === 'compact' || (mode === 'auto' && isEmbedded)) ? 'standard' : 'compact')}
+                                title="Toggle compact or expanded Gantt height"
+                            >
+                                <span>{(ganttHeightMode === 'compact' || (ganttHeightMode === 'auto' && isEmbedded)) ? 'Expand Gantt' : 'Compact Gantt'}</span>
+                            </button>
+                        )}
 
-                <div className="chartButtons">
-                    <button
-                        onClick={() => setSelectedGantt(idx => ((idx > 0 ? idx - 1 : ganttNamesArray.length - 1)))}>
-                        <span>Prev</span></button>
-                    <button
-                        onClick={() => setSelectedGantt(idx => ((idx + 1) % ganttNamesArray.length))}>
-                        <span>Next</span></button>
-                </div>
+                        <div className="chartButtons">
+                            <button
+                                onClick={() => setSelectedGantt(idx => ((idx > 0 ? idx - 1 : ganttNamesArray.length - 1)))}>
+                                <span>Prev</span></button>
+                            <button
+                                onClick={() => setSelectedGantt(idx => ((idx + 1) % ganttNamesArray.length))}>
+                                <span>Next</span></button>
+                        </div>
+                    </>
+                )}
             </div>
         </div>
-        <iframe ref={gridIframe} onLoad={handleGrid}
-                scrolling="auto"
-                style={{
-                    height: `${iframeHeight}px`,
-                    minHeight: `${iframeHeight}px`,
-                    width: '100%',
-                    border: 'none',
-                    display: 'block',
-                    overflowX: 'auto',
-                    overflowY: 'hidden'
-                }}
-                src={ganttNamesArray.length > 0 && plotBaseUrl ? `${plotBaseUrl}/${ganttNamesArray[selectedGantt]}` : ""} title="Gantt"/>
+        {!shouldHideGantt && (
+            <iframe ref={gridIframe} onLoad={handleGrid}
+                    scrolling="auto"
+                    style={{
+                        height: `${iframeHeight}px`,
+                        minHeight: `${iframeHeight}px`,
+                        width: '100%',
+                        border: 'none',
+                        display: 'block',
+                        overflowX: 'auto',
+                        overflowY: 'hidden'
+                    }}
+                    src={ganttNamesArray.length > 0 && plotBaseUrl ? `${plotBaseUrl}/${ganttNamesArray[selectedGantt]}` : ""} title="Gantt"/>
+        )}
     </div>);
 }
 

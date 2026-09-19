@@ -30,11 +30,14 @@ const getDispenserInitials = (types: string[]) => {
 };
 
 export default function ExperimentInfoModal({experimentId, onClose, onCopyCreate}: Props) {
-    const [activeTab, setActiveTab] = useState<'configuration' | 'layout' | 'order_list' | 'simulation'>('configuration');
+    const [activeTab, setActiveTab] = useState<'configuration' | 'layout' | 'order_list' | 'simulation' | 'gantt'>('configuration');
     const [infoIngredientListId, setInfoIngredientListId] = useState<number | null>(null);
     const [zoom, setZoom] = useState(1);
     const [hoveredType, setHoveredType] = useState<string | null>(null);
+    const [selectedGanttIndex, setSelectedGanttIndex] = useState(0);
+
     const SIMULATOR_URL = import.meta.env.VITE_SIMULATOR_URL || 'http://localhost:3000';
+    const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000/api/v1';
 
     const {data, isLoading, isError} = useQuery({
         queryKey: ['experiment_details', experimentId],
@@ -42,10 +45,46 @@ export default function ExperimentInfoModal({experimentId, onClose, onCopyCreate
         enabled: !!experimentId,
     });
 
+    const {data: simulationData, isLoading: isSimLoading} = useQuery({
+        queryKey: ['simulation_details', experimentId],
+        queryFn: async () => {
+            const response = await fetch(`${API_BASE_URL}/simulations/${experimentId}`);
+            if (!response.ok) throw new Error('Simulation not found');
+            return response.json();
+        },
+        enabled: !!experimentId && activeTab === 'gantt' && data?.status === 'finished',
+    });
+
+    const ganttNames: string[] = simulationData?.gantts?.names || [];
+    const activeGanttName = ganttNames[selectedGanttIndex] || ganttNames[0] || '';
+
+    const getGanttPlotUrl = (name: string) => {
+        if (!name) return '';
+        if (simulationData?.gantts?.api_plot_url) {
+            let url = simulationData.gantts.api_plot_url.replace(/\/$/, '');
+            if (url.includes('backend:8000')) {
+                url = url.replace('backend:8000', 'localhost:8000');
+            }
+            return `${url}/${name}`;
+        }
+        return `${API_BASE_URL}/simulations/${experimentId}/plots/${name}`;
+    };
+
+    const currentGanttUrl = getGanttPlotUrl(activeGanttName);
+
+    const formatGanttName = (name: string) => {
+        return name
+            .replace(/_graph$/, '')
+            .split('_')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+    };
+
     const handleClose = () => {
         setActiveTab('configuration');
         setZoom(1);
         setHoveredType(null);
+        setSelectedGanttIndex(0);
         onClose();
     };
 
@@ -98,7 +137,7 @@ export default function ExperimentInfoModal({experimentId, onClose, onCopyCreate
 
             <div
                 className={`relative bg-white rounded-lg shadow-2xl border border-gray-200 w-full flex flex-col max-h-[96vh] transition-all duration-200 ${
-                    activeTab === 'simulation' ? 'max-w-[96vw] h-[92vh]' : 'max-w-6xl h-225'
+                    (activeTab === 'simulation' || activeTab === 'gantt') ? 'max-w-[96vw] h-[92vh]' : 'max-w-6xl h-225'
                 }`}>
 
                 {/* Header */}
@@ -123,7 +162,8 @@ export default function ExperimentInfoModal({experimentId, onClose, onCopyCreate
                                 {id: 'configuration', label: 'Configuration'},
                                 {id: 'layout', label: 'Layout'},
                                 {id: 'order_list', label: 'Order List'},
-                                {id: 'simulation', label: 'Simulation'}
+                                {id: 'simulation', label: 'Simulation'},
+                                {id: 'gantt', label: 'Gantt Chart'}
                             ].map(tab => (
                                 <button
                                     key={tab.id}
@@ -148,6 +188,19 @@ export default function ExperimentInfoModal({experimentId, onClose, onCopyCreate
                                 rel="noreferrer"
                                 className="text-gray-500 hover:text-gray-800 px-2.5 py-1.5 rounded-md hover:bg-gray-100 transition-colors flex items-center gap-1.5 text-xs font-medium border border-gray-200 shadow-xs"
                                 title="Open simulator in full window"
+                            >
+                                <ArrowTopRightOnSquareIcon className="w-4 h-4" />
+                                <span className="hidden sm:inline">Fullscreen</span>
+                            </a>
+                        )}
+
+                        {activeTab === 'gantt' && data?.status === 'finished' && currentGanttUrl && (
+                            <a
+                                href={currentGanttUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-gray-500 hover:text-gray-800 px-2.5 py-1.5 rounded-md hover:bg-gray-100 transition-colors flex items-center gap-1.5 text-xs font-medium border border-gray-200 shadow-xs"
+                                title="Open Gantt chart in full window"
                             >
                                 <ArrowTopRightOnSquareIcon className="w-4 h-4" />
                                 <span className="hidden sm:inline">Fullscreen</span>
@@ -581,7 +634,7 @@ export default function ExperimentInfoModal({experimentId, onClose, onCopyCreate
                             <div className={activeTab === 'simulation' ? 'flex-1 min-h-0 bg-white relative' : 'hidden'}>
                                 {data.status === 'finished' ? (
                                     <iframe
-                                        src={`${SIMULATOR_URL}/${experimentId}/simulator`}
+                                        src={`${SIMULATOR_URL}/${experimentId}/simulator?hide_gantt=true`}
                                         className="w-full h-full border-none"
                                         title="Simulation View"
                                     />
@@ -599,13 +652,83 @@ export default function ExperimentInfoModal({experimentId, onClose, onCopyCreate
                                 )}
                             </div>
 
+                            {/* Gantt Chart Tab */}
+                            <div className={activeTab === 'gantt' ? 'flex-1 min-h-0 bg-white flex flex-col relative' : 'hidden'}>
+                                {data.status === 'finished' ? (
+                                    isSimLoading ? (
+                                        <div className="h-full flex flex-col items-center justify-center text-gray-500 space-y-2">
+                                            <ArrowPathIcon className="w-6 h-6 animate-spin text-gray-700" />
+                                            <span className="text-sm">Loading Gantt charts...</span>
+                                        </div>
+                                    ) : ganttNames.length > 0 ? (
+                                        <div className="flex-1 flex flex-col min-h-0">
+                                            {/* Chart Selector Bar */}
+                                            <div className="px-6 py-2.5 bg-gray-50 border-b border-gray-200 flex items-center justify-between shrink-0">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider mr-1">
+                                                        Chart:
+                                                    </span>
+                                                    <div className="inline-flex rounded-lg bg-gray-200/80 p-0.5 shadow-xs">
+                                                        {ganttNames.map((name, idx) => (
+                                                            <button
+                                                                key={name}
+                                                                onClick={() => setSelectedGanttIndex(idx)}
+                                                                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+                                                                    (selectedGanttIndex === idx || (!ganttNames[selectedGanttIndex] && idx === 0))
+                                                                        ? 'bg-white text-gray-900 shadow-xs font-semibold'
+                                                                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100/50'
+                                                                }`}
+                                                            >
+                                                                {formatGanttName(name)}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                                {simulationData?.gantts?.max_path && (
+                                                    <div className="text-xs text-gray-500 font-medium">
+                                                        Total Duration: <span className="font-semibold text-gray-800">{simulationData.gantts.max_path} timesteps</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                            {/* Full-width, full-height plot iframe */}
+                                            <div className="flex-1 min-h-0 w-full relative bg-white">
+                                                <iframe
+                                                    key={currentGanttUrl}
+                                                    src={currentGanttUrl}
+                                                    className="w-full h-full border-none"
+                                                    title="Gantt Chart View"
+                                                />
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="h-full flex flex-col items-center justify-center text-gray-500 space-y-3">
+                                            <div className="text-center">
+                                                <p className="text-lg font-semibold text-gray-900">No Gantt charts found</p>
+                                                <p className="text-sm text-gray-500 max-w-xs mx-auto">
+                                                    No Gantt chart plots were generated for this simulation.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    )
+                                ) : (
+                                    <div className="h-full flex flex-col items-center justify-center text-gray-500 space-y-3">
+                                        <div className="text-center">
+                                            <p className="text-lg font-semibold text-gray-900">Gantt chart is not available</p>
+                                            <p className="text-sm text-gray-500 max-w-xs mx-auto">
+                                                Gantt charts are available only for finished experiments.
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
 
                         </>
                     )}
                 </div>
 
                 {/* Footer */}
-                {activeTab !== 'simulation' && (
+                {activeTab !== 'simulation' && activeTab !== 'gantt' && (
                     <div className="px-6 py-4 border-t border-gray-200 bg-white rounded-b-lg flex justify-end shrink-0">
                         {data && onCopyCreate && (
                             <button

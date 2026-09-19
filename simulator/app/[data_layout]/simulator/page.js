@@ -34,6 +34,17 @@ export default function Simulator() {
         void fetchData();
     }, [simulationId]);
 
+    const [hideGantt, setHideGantt] = useState(false);
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('hide_gantt') === 'true' || urlParams.get('no_gantt') === 'true') {
+                setHideGantt(true);
+            }
+        }
+    }, []);
+
     if (!simulationData) {
         return (
             <main>
@@ -58,6 +69,7 @@ export default function Simulator() {
                     fill={size.fill}
                     simulationData={simulationData}
                     simulationId={simulationId}
+                    hideGantt={hideGantt}
                 />
             </section>
         </main>

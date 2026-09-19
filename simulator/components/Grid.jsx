@@ -9,8 +9,7 @@ import {useMemo} from 'react';
 
 import {processMoverTrajectories, CELL_SIZE, MOVER_SIZE} from '../utils/trajectoryProcessor';
 
-// m x n
-export default function Grid({m, n, simulationData, fill}) {
+export default function Grid({m, n, simulationData, fill, hideGantt}) {
   const medicineInfo = simulationData?.tile_type_dict || {};
   const dispenserInfo = simulationData?.dispenser_dict || {};
   const patientColors = simulationData?.order_color_dict || {};
@@ -286,7 +285,7 @@ export default function Grid({m, n, simulationData, fill}) {
              medicineName={medicineName}
              consumeMove={consumeMove} prevMove={prevMove} goToFrame={goToFrame}
              setAnimate={setSpeed} setMedicine={setMedicine} ganttData={ganttData}
-             moverCount={positions.length}/>
+             moverCount={positions.length} hideGantt={hideGantt}/>
   </>);
 
 }
