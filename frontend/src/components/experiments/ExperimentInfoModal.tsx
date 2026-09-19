@@ -5,6 +5,7 @@ import type {ExperimentSingleGetResponseDTO} from '../../types/experiments';
 import {formatSolverType} from '../../utils/formatters';
 import {
     ArrowPathIcon,
+    ArrowTopRightOnSquareIcon,
     CircleStackIcon,
     DocumentDuplicateIcon,
     FunnelIcon,
@@ -96,7 +97,9 @@ export default function ExperimentInfoModal({experimentId, onClose, onCopyCreate
             <div className="absolute inset-0 bg-black/20 backdrop-blur-[1px]" onClick={handleClose}></div>
 
             <div
-                className="relative bg-white rounded-lg shadow-2xl border border-gray-200 w-full max-w-6xl flex flex-col max-h-[95vh] h-225">
+                className={`relative bg-white rounded-lg shadow-2xl border border-gray-200 w-full flex flex-col max-h-[96vh] transition-all duration-200 ${
+                    activeTab === 'simulation' ? 'max-w-[96vw] h-[92vh]' : 'max-w-6xl h-225'
+                }`}>
 
                 {/* Header */}
                 <div
@@ -112,7 +115,7 @@ export default function ExperimentInfoModal({experimentId, onClose, onCopyCreate
                             </>
                         )}
                     </div>
-                    <div className="flex items-center h-full shrink-0 gap-6">
+                    <div className="flex items-center h-full shrink-0 gap-4">
 
                         {/* Tabs */}
                         <div className="flex space-x-6 h-full">
@@ -137,6 +140,20 @@ export default function ExperimentInfoModal({experimentId, onClose, onCopyCreate
                                 </button>
                             ))}
                         </div>
+
+                        {activeTab === 'simulation' && data?.status === 'finished' && (
+                            <a
+                                href={`${SIMULATOR_URL}/${experimentId}/simulator`}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-gray-500 hover:text-gray-800 px-2.5 py-1.5 rounded-md hover:bg-gray-100 transition-colors flex items-center gap-1.5 text-xs font-medium border border-gray-200 shadow-xs"
+                                title="Open simulator in full window"
+                            >
+                                <ArrowTopRightOnSquareIcon className="w-4 h-4" />
+                                <span className="hidden sm:inline">Fullscreen</span>
+                            </a>
+                        )}
+
                         <button onClick={handleClose}
                                 className="text-gray-400 hover:text-gray-600 p-1.5 rounded-md hover:bg-gray-100 transition-colors shrink-0"
                                 title="Close">
@@ -588,20 +605,22 @@ export default function ExperimentInfoModal({experimentId, onClose, onCopyCreate
                 </div>
 
                 {/* Footer */}
-                <div className="px-6 py-4 border-t border-gray-200 bg-white rounded-b-lg flex justify-end shrink-0">
-                    {data && onCopyCreate && (
-                        <button
-                            onClick={() => {
-                                handleClose();
-                                onCopyCreate(data);
-                            }}
-                            className="px-4 py-2 text-sm font-medium text-white bg-gray-900 border border-transparent rounded-md hover:bg-black shadow-sm flex items-center gap-2"
-                        >
-                            <DocumentDuplicateIcon className="w-4 h-4"/>
-                            Copy & Create
-                        </button>
-                    )}
-                </div>
+                {activeTab !== 'simulation' && (
+                    <div className="px-6 py-4 border-t border-gray-200 bg-white rounded-b-lg flex justify-end shrink-0">
+                        {data && onCopyCreate && (
+                            <button
+                                onClick={() => {
+                                    handleClose();
+                                    onCopyCreate(data);
+                                }}
+                                className="px-4 py-2 text-sm font-medium text-white bg-gray-900 border border-transparent rounded-md hover:bg-black shadow-sm flex items-center gap-2"
+                            >
+                                <DocumentDuplicateIcon className="w-4 h-4"/>
+                                Copy & Create
+                            </button>
+                        )}
+                    </div>
+                )}
             </div>
         </div>
     );

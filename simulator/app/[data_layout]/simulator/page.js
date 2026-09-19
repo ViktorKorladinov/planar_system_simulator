@@ -42,11 +42,15 @@ export default function Simulator() {
         )
     }
 
+    const isEmbedded = typeof window !== 'undefined' && window.self !== window.top;
+
     return (
         <main>
-            <div onClick={() => router.push('/')} className="hover:cursor-pointer absolute left-4 w-28 h-28">
-                <Image id="aa" fill={true} alt="CIIRC Logo" src={"/ciirc.svg"} />
-            </div>
+            {!isEmbedded && (
+                <div onClick={() => router.push('/')} className="hover:cursor-pointer absolute left-4 w-28 h-28">
+                    <Image id="aa" fill={true} alt="CIIRC Logo" src={"/ciirc.svg"} />
+                </div>
+            )}
             <section className="gridHolder">
                 <Grid
                     n={size.n}

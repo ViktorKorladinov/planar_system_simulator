@@ -1,0 +1,64 @@
+1
+00:00:00,000 --> 00:00:04,000
+Welcome to the interactive design and operational platform-for planar flexible manufacturing: Tile Glider.
+
+2
+00:00:04,000 --> 00:00:08,000
+Researchers can monitor and sort experiments across 24 critical metrics including mover allocations, solver models, and status.
+
+3
+00:00:13,000 --> 00:00:17,000
+Opening Experiment Details provides full visibility into configuration parameters, layouts, and orders.
+
+4
+00:00:17,000 --> 00:00:21,000
+The Layout tab renders the factory grid twin. Hovering reagents dynamically illuminates their physical dispensers.
+
+5
+00:00:25,000 --> 00:00:29,000
+For finished runs, Tile Glider runs directly inside the modal for instant visual validation.
+
+6
+00:00:33,000 --> 00:00:37,000
+Domain modeling supports pharmaceuticals and complex perfumes with scent notes, viscosity, and volatility.
+
+7
+00:00:44,000 --> 00:00:48,000
+Custom recipes are sequenced with drag-and-drop ordering and quick insertion of physical Mixers and Cappers.
+
+8
+00:00:53,000 --> 00:00:57,000
+The visual Layout Studio generates industrial lines, loops, rings, and custom grids with drag-and-drop editing.
+
+9
+00:01:09,000 --> 00:01:13,000
+Fine-tune solvers from Hexaly to CPLEX Medicine with configurable batch sizes and warmup modes.
+
+10
+00:01:20,000 --> 00:01:24,000
+The Batch Matrix engine computes Cartesian product sweeps with dry-run compatibility checks.
+
+11
+00:01:33,000 --> 00:01:37,000
+Now entering Tile Glider, the dedicated visual simulator for planar transport systems.
+
+12
+00:01:38,000 --> 00:01:42,000
+Launching Simulation 4, featuring 12 movers, 64 tiles, and 99 patient orders.
+
+13
+00:01:45,000 --> 00:01:49,000
+Spring-physics animations provide smooth centered mover travel across speed presets.
+
+14
+00:01:54,000 --> 00:01:58,000
+The frame scrubber enables instant timeline seeking with dynamic 50-shade thermal heatmap accumulation.
+
+15
+00:02:02,000 --> 00:02:06,000
+Multi-mover stack detection displays fanned offsets and counter badges, fully synchronized with live Gantt telemetry.
+
+16
+00:02:07,000 --> 00:02:11,000
+Complete end-to-end control from experiment configuration to visual telemetry.
+

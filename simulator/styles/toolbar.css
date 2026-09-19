@@ -34,20 +34,34 @@
 }
 
 .toolbarWrapper {
+    position: relative;
     display: flex;
     justify-content: center;
-    align-content: center;
+    align-items: center;
+    width: 100%;
+    min-height: 48px;
 }
 
-.barDetached .medicine{
+.barDetached .medicine {
     width: fit-content;
-    margin-left: auto;
-    margin-right: auto;
+    margin: 0 auto 6px auto;
 }
 
-.barAttached .medicine{
-    width: 200px;
+.barAttached .medicine {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: auto;
+    max-width: 260px;
     font-size: small;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    z-index: 10;
+    pointer-events: none;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
 }
 
 .toolbar, .medicine {

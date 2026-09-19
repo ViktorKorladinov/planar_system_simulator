@@ -10,15 +10,29 @@ function Toolbar({counter, length, animate, setAnimate, consumeMove, prevMove, g
     const [contentWindow, setContentWindow] = useState(null)
     const contentWindowRef = useRef();
 
+    const [ganttHeightMode, setGanttHeightMode] = useState('auto'); // 'auto', 'compact', 'standard'
+    const isEmbedded = typeof window !== 'undefined' && window.self !== window.top;
+
     const calculateHeight = React.useCallback(() => {
         const count = moverCount || 12;
+        if (ganttHeightMode === 'compact') {
+            return Math.min(160, Math.max(110, 20 + count * 10));
+        }
+        if (ganttHeightMode === 'standard') {
+            return Math.max(240, 44 + count * 18);
+        }
+        // Auto mode
+        if (isEmbedded) {
+            // When embedded inside details page modal, use compact height to maximize tile grid room
+            return Math.min(165, Math.max(115, 22 + count * 11));
+        }
         if (typeof window !== 'undefined' && window.innerHeight < 860) {
             // Compact mode for 13" MacBook Air and smaller displays (viewport height < 860px)
-            return Math.max(190, 38 + count * 18);
+            return Math.max(180, 34 + count * 16);
         }
         // Standard mode for large monitors
-        return Math.max(250, 48 + count * 22);
-    }, [moverCount]);
+        return Math.max(240, 44 + count * 18);
+    }, [moverCount, ganttHeightMode, isEmbedded]);
 
     const [iframeHeight, setIframeHeight] = useState(calculateHeight);
 
@@ -123,9 +137,20 @@ function Toolbar({counter, length, animate, setAnimate, consumeMove, prevMove, g
                 </div>
                 <button
                     className="separate"
-                    onClick={() => setBarMode(state => state === 'barAttached' ? 'barDetached' : 'barAttached')}>
+                    onClick={() => setBarMode(state => state === 'barAttached' ? 'barDetached' : 'barAttached')}
+                    title={barMode === 'barAttached' ? 'Hide Gantt chart and float toolbar' : 'Show and attach Gantt chart'}
+                >
                     <span>{barMode === 'barAttached' ? 'Detach' : 'Attach'}</span>
                 </button>
+                {barMode === 'barAttached' && (
+                    <button
+                        type="button"
+                        onClick={() => setGanttHeightMode(mode => (mode === 'compact' || (mode === 'auto' && isEmbedded)) ? 'standard' : 'compact')}
+                        title="Toggle compact or expanded Gantt height"
+                    >
+                        <span>{(ganttHeightMode === 'compact' || (ganttHeightMode === 'auto' && isEmbedded)) ? 'Expand Gantt' : 'Compact Gantt'}</span>
+                    </button>
+                )}
 
                 <div className="chartButtons">
                     <button
@@ -138,8 +163,16 @@ function Toolbar({counter, length, animate, setAnimate, consumeMove, prevMove, g
             </div>
         </div>
         <iframe ref={gridIframe} onLoad={handleGrid}
-                scrolling="no"
-                style={{ height: `${iframeHeight}px`, minHeight: `${iframeHeight}px`, width: '100%', border: 'none', display: 'block', overflow: 'hidden' }}
+                scrolling="auto"
+                style={{
+                    height: `${iframeHeight}px`,
+                    minHeight: `${iframeHeight}px`,
+                    width: '100%',
+                    border: 'none',
+                    display: 'block',
+                    overflowX: 'auto',
+                    overflowY: 'hidden'
+                }}
                 src={ganttNamesArray.length > 0 && plotBaseUrl ? `${plotBaseUrl}/${ganttNamesArray[selectedGantt]}` : ""} title="Gantt"/>
     </div>);
 }

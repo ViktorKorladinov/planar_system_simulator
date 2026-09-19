@@ -196,7 +196,16 @@ class ScheduleVisualizer:
             )
             graph.update_layout(
                 showlegend=show_legend,
-                margin=dict(l=65, r=20, t=18, b=22),
+                margin=dict(l=65, r=160, t=18, b=22),
+                legend=dict(
+                    orientation="v",
+                    yanchor="top",
+                    y=0.98,
+                    xanchor="left",
+                    x=1.01,
+                    font=dict(size=10),
+                    itemsizing="constant"
+                ),
                 title=dict(
                     text=f'Colored by {graph_type}',
                     font=dict(size=13),
