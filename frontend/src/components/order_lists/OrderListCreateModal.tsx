@@ -1,4 +1,5 @@
-import {type ChangeEvent, type SyntheticEvent, useRef, useState} from 'react';
+import {type ChangeEvent, type SyntheticEvent, useEffect, useRef, useState} from 'react';
+import {useSearchParams} from 'react-router-dom';
 import {useMutation, useQueryClient} from '@tanstack/react-query';
 import {
     closestCenter,
@@ -250,44 +251,114 @@ export default function OrderListCreateModal({
         }
     };
 
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    useEffect(() => {
+        if (isOpen && searchParams.get('upload') === 'true') {
+            const nextParams = new URLSearchParams(searchParams);
+            nextParams.delete('upload');
+            setSearchParams(nextParams, {replace: true});
+            setTimeout(() => {
+                fileInputRef.current?.click();
+            }, 50);
+        }
+    }, [isOpen, searchParams, setSearchParams]);
+
     const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
 
         const reader = new FileReader();
         reader.onload = (event) => {
+            const text = (event.target?.result as string || '').trim();
             try {
-                const json = JSON.parse(event.target?.result as string) as ParsedJSONOrderList;
+                const isCsv = file.name.toLowerCase().endsWith('.csv') || (!text.startsWith('{') && !text.startsWith('['));
+                let parsedOrders: UIOrder[] = [];
 
-                if (!json.orders || !Array.isArray(json.orders)) {
-                    setValidationErrors(["Invalid file format. 'orders' array is missing."]);
-                    if (fileInputRef.current) fileInputRef.current.value = '';
-                    return;
+                if (isCsv) {
+                    const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+                    if (lines.length < 2) {
+                        setValidationErrors(["CSV file is empty or missing data rows."]);
+                        if (fileInputRef.current) fileInputRef.current.value = '';
+                        return;
+                    }
+
+                    const header = lines[0].toLowerCase();
+                    const sep = header.includes(';') ? ';' : ',';
+                    const headerCols = lines[0].split(sep).map(c => c.trim().toLowerCase());
+
+                    const drugIdx = headerCols.findIndex(c => c.includes('drug') || c.includes('item') || c.includes('name'));
+                    const dosageIdx = headerCols.findIndex(c => c.includes('dosage') || c.includes('qty') || c.includes('quantity') || c.includes('amount'));
+
+                    for (let i = 1; i < lines.length; i++) {
+                        const row = lines[i].split(sep).map(c => c.trim());
+                        if (!row || row.length === 0 || row.every(c => !c)) continue;
+
+                        const rawDrugs = drugIdx !== -1 ? row[drugIdx] : row[1];
+                        const rawDosages = dosageIdx !== -1 ? row[dosageIdx] : row[2];
+                        if (!rawDrugs) continue;
+
+                        const drugsMatch = rawDrugs.match(/['"]([^'"]+)['"]/g);
+                        const cleanDrugs = drugsMatch
+                            ? drugsMatch.map(d => d.replace(/['"]/g, '').trim())
+                            : rawDrugs.replace(/^\[|\]$/g, '').split(',').map(s => s.trim().replace(/^['"]|['"]$/g, '')).filter(Boolean);
+
+                        const dosagesMatch = rawDosages ? rawDosages.match(/\d+(\.\d+)?/g) : null;
+                        const cleanDosages = dosagesMatch
+                            ? dosagesMatch.map(Number)
+                            : (rawDosages ? rawDosages.replace(/^\[|\]$/g, '').split(',').map(s => parseFloat(s.trim()) || 1) : []);
+
+                        const items = cleanDrugs.map((itemDrug, idx) => ({
+                            id: generateId(),
+                            name: itemDrug,
+                            quantity: cleanDosages[idx] !== undefined ? cleanDosages[idx] : 1
+                        }));
+
+                        if (items.length > 0) {
+                            parsedOrders.push({
+                                id: generateId(),
+                                t_max: '',
+                                items
+                            });
+                        }
+                    }
+
+                    const baseName = file.name.replace(/\.[^/.]+$/, '');
+                    setName(baseName || 'orders');
+                    setType('medicine');
+                } else {
+                    const json = JSON.parse(text) as ParsedJSONOrderList;
+
+                    if (!json.orders || !Array.isArray(json.orders)) {
+                        setValidationErrors(["Invalid file format. 'orders' array is missing."]);
+                        if (fileInputRef.current) fileInputRef.current.value = '';
+                        return;
+                    }
+
+                    if (json.name) setName(json.name);
+                    if (json.type && (json.type === 'medicine' || json.type === 'perfume')) setType(json.type as OrderListType);
+
+                    parsedOrders = json.orders.map((o) => ({
+                        id: generateId(),
+                        t_max: typeof o.t_max === 'number' ? o.t_max : '',
+                        items: (o.items || []).map((i) => ({
+                            id: generateId(),
+                            name: i.name || '',
+                            quantity: typeof i.quantity === 'number' ? i.quantity : 1
+                        }))
+                    }));
                 }
 
-                if (json.name) setName(json.name);
-                if (json.type && (json.type === 'medicine' || json.type === 'perfume')) setType(json.type as OrderListType);
-
-                const newOrders: UIOrder[] = json.orders.map((o) => ({
-                    id: generateId(),
-                    t_max: typeof o.t_max === 'number' ? o.t_max : '',
-                    items: (o.items || []).map((i) => ({
-                        id: generateId(),
-                        name: i.name || '',
-                        quantity: typeof i.quantity === 'number' ? i.quantity : 1
-                    }))
-                }));
-
-                if (newOrders.length === 0) newOrders.push({
+                if (parsedOrders.length === 0) parsedOrders.push({
                     id: generateId(),
                     t_max: '',
                     items: [{id: generateId(), name: '', quantity: 1}]
                 });
 
-                setOrders(newOrders);
+                setOrders(parsedOrders);
                 setValidationErrors([]);
             } catch (err: unknown) {
-                const errorMessage = err instanceof Error ? err.message : 'Invalid JSON';
+                const errorMessage = err instanceof Error ? err.message : 'Invalid file format';
                 setValidationErrors([`Failed to parse file: ${errorMessage}`]);
             }
             if (fileInputRef.current) fileInputRef.current.value = '';
@@ -448,7 +519,7 @@ export default function OrderListCreateModal({
                     <div
                         className="px-6 py-4 border-t border-gray-200 bg-white rounded-b-lg flex justify-between items-center shrink-0">
                         <div>
-                            <input type="file" accept=".json" ref={fileInputRef} onChange={handleFileUpload}
+                            <input type="file" accept=".json,.csv" ref={fileInputRef} onChange={handleFileUpload}
                                    className="hidden" id="order-file-upload"/>
                             <label htmlFor="order-file-upload"
                                    className="cursor-pointer px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 inline-flex items-center gap-2">

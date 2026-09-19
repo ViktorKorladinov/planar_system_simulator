@@ -102,6 +102,7 @@ export default function OrderListsPage() {
 
     const closeCreateModal = () => {
         searchParams.delete('create');
+        searchParams.delete('upload');
         setSearchParams(searchParams);
         setCopyData(null);
     };

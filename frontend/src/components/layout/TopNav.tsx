@@ -63,12 +63,20 @@ export default function TopNav() {
                 );
             case '/order-lists':
                 return (
-                    <button
-                        className={createBtnClass}
-                        onClick={() => navigate('/order-lists?create=true')}
-                    >
-                        Create Order List
-                    </button>
+                    <>
+                        <button
+                            className={createBtnClass}
+                            onClick={() => navigate('/order-lists?create=true')}
+                        >
+                            Create Order List
+                        </button>
+                        <button
+                            className={createBtnClass}
+                            onClick={() => navigate('/order-lists?create=true&upload=true')}
+                        >
+                            Load from File
+                        </button>
+                    </>
                 );
             case '/batches':
                 return (
