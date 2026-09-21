@@ -62,6 +62,8 @@ services:
       # External host port is required for direct client-browser REST requests and SSE events
       - "${BACKEND_HOST_PORT:-8000}:8000"
     volumes:
+      - ./backend/scripts:/app/scripts
+      - ./backend/data:/app/data
       - plots_data:/app/data/plots
       - cplex_data:/opt/ibm:ro
       - ./gurobi.lic:/opt/gurobi/gurobi.lic:ro
@@ -97,6 +99,8 @@ services:
       CPLEX_PATH: ${CPLEX_PATH:-/opt/ibm/ILOG/CPLEX_Studio2211/cpoptimizer/bin/x86-64_linux/cpoptimizer}
       GRB_LICENSE_FILE: /opt/gurobi/gurobi.lic
     volumes:
+      - ./backend/scripts:/app/scripts
+      - ./backend/data:/app/data
       - plots_data:/app/data/plots
       - cplex_data:/opt/ibm:ro
       - ./gurobi.lic:/opt/gurobi/gurobi.lic:ro
