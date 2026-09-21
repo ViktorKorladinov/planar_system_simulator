@@ -55,6 +55,8 @@ COPY --chown=appuser:appgroup alembic.ini .
 COPY --chown=appuser:appgroup dependencies.py .
 COPY --chown=appuser:appgroup main.py .
 COPY --chown=appuser:appgroup entrypoint.sh .
+COPY --chown=appuser:appgroup scripts ./scripts
+COPY --chown=appuser:appgroup data ./data
 
 # Ensure data plot and templates directories exist and are writable by non-root user
 RUN mkdir -p /app/data/plots /app/templates && \

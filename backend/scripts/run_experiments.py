@@ -50,9 +50,31 @@ TOPOLOGY_MAP = {
 }
 
 
+def resolve_file_path(path: str) -> str:
+    """Finds existing file path across current working dir, repo root, and Docker container."""
+    if os.path.exists(path):
+        return path
+    candidates = [
+        os.path.join(os.path.dirname(__file__), "..", path),
+        os.path.join(os.path.dirname(__file__), "..", "..", path),
+        os.path.join("/app", path),
+        os.path.join("/app", "data", os.path.basename(path)),
+        os.path.join("/app", "data", "layouts", os.path.basename(path)),
+        os.path.join(os.path.dirname(__file__), "..", "data", os.path.basename(path)),
+        os.path.join(os.path.dirname(__file__), "..", "data", "layouts", os.path.basename(path)),
+        os.path.join("data", os.path.basename(path)),
+        os.path.join("data", "layouts", os.path.basename(path)),
+    ]
+    for c in candidates:
+        if os.path.exists(c):
+            return os.path.abspath(c)
+    return path
+
+
 def parse_layout_file(filepath: str, topology_type: str) -> Dict[str, Any]:
     """Parses a layout JSON file into a LayoutDTO payload for the backend API."""
-    with open(filepath, "r", encoding="utf-8") as f:
+    resolved = resolve_file_path(filepath)
+    with open(resolved, "r", encoding="utf-8") as f:
         data = json.load(f)
 
     placement = data.get("placement", [])
@@ -149,7 +171,8 @@ def ensure_layouts(api_url: str, topology: str) -> List[int]:
 def create_order_lists(api_url: str, order_file: str, seeds_count: int = 5,
                        subsets: Optional[List[int]] = None) -> List[int]:
     """Generates order sets with different seeds or subsets and uploads them."""
-    with open(order_file, "r", encoding="utf-8") as f:
+    resolved = resolve_file_path(order_file)
+    with open(resolved, "r", encoding="utf-8") as f:
         data = json.load(f)
 
     base_orders = data.get("orders", [])
