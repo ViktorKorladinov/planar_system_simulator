@@ -27,7 +27,7 @@ __pycache__/
 # Project Specific Data
 # =========================
 data/plots/*
-/data/
+!data/plots/.gitkeep
 *.html
 !templates/
 !templates/**
