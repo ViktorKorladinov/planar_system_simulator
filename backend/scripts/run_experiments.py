@@ -240,7 +240,7 @@ def build_configurations(mode: str, time_limit: int) -> List[Dict[str, Any]]:
             "dispensing_time": 10,
             "interface_time": 3,
             "time_limit": min(time_limit, 10),
-            "batch_size": None,
+            "batch_size": 100,
             "process_amount": 1,
             "warmup": False
         })
@@ -257,13 +257,13 @@ def build_configurations(mode: str, time_limit: int) -> List[Dict[str, Any]]:
                         "dispensing_time": dispensing_time,
                         "interface_time": 3,
                         "time_limit": time_limit,
-                        "batch_size": None,
+                        "batch_size": 100,
                         "process_amount": 1,
                         "warmup": warmup
                     })
     elif mode == "batching":
-        for batch_size in [None, 25, 50]:
-            bs_label = f"B{batch_size}" if batch_size else "unbatched"
+        for batch_size in [100, 25, 50]:
+            bs_label = f"B{batch_size}" if batch_size != 100 else "unbatched"
             configs.append({
                 "name": f"Batching_M8_{bs_label}",
                 "solver_type": "cplex_medicine",
@@ -283,7 +283,7 @@ def build_configurations(mode: str, time_limit: int) -> List[Dict[str, Any]]:
             "dispensing_time": 10,
             "interface_time": 3,
             "time_limit": time_limit,
-            "batch_size": None,
+            "batch_size": 100,
             "process_amount": 1,
             "warmup": False
         })
@@ -296,7 +296,7 @@ def build_configurations(mode: str, time_limit: int) -> List[Dict[str, Any]]:
                 "dispensing_time": 10,
                 "interface_time": 3,
                 "time_limit": time_limit,
-                "batch_size": None,
+                "batch_size": 100,
                 "process_amount": 1,
                 "warmup": True
             })
