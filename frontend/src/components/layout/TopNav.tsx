@@ -105,7 +105,7 @@ export default function TopNav() {
 
             {/* Logo */}
             <div className="font-bold text-xl text-gray-900 tracking-tight shrink-0 py-4 order-1">
-                Experiment<span className="text-green-700">Configurator</span>
+                Planar<span className="text-green-700">Configurator</span>
             </div>
 
             {/* Tabs */}

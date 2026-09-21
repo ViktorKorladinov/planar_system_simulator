@@ -1,6 +1,6 @@
 export const metadata = {
-  title: "XPlanar Pharma Simulator",
-  description: "Simulator for pharma scheduler. Developed by CIIRC.",
+  title: "Planar Simulator",
+  description: "Planar transport system simulator.",
 };
 
 import '@/styles/globals.css'

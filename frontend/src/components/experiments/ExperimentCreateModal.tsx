@@ -1,4 +1,4 @@
-import {type SyntheticEvent, useRef, useState} from 'react';
+import {type SyntheticEvent, useEffect, useRef, useState} from 'react';
 import {useMutation, useQueryClient} from '@tanstack/react-query';
 import {createExperiment} from '../../api/experiments';
 import type {ExperimentSingleCreateRequestDTO, ExperimentSingleGetResponseDTO} from '../../types/experiments';
@@ -8,6 +8,7 @@ import type {LayoutSingleCreateRequestDTO} from "../../types/layouts";
 import ExperimentLayoutTab, {type LayoutTabRef} from "./tabs/ExperimentLayoutTab";
 import type {OrderListCreateRequestDTO} from "../../types/order_lists";
 import ExperimentOrderListTab, {type OrderListTabRef} from './tabs/ExperimentOrderListTab';
+import {checkSolverRateLimit, formatRemainingTime} from '../../utils/solverRateLimit';
 
 interface Props {
     isOpen: boolean;
@@ -31,6 +32,17 @@ export default function ExperimentCreateModal({isOpen, initialData, onClose, onS
     const [activeTab, setActiveTab] = useState<'configuration' | 'layout' | 'order_list'>('configuration');
     const [globalError, setGlobalError] = useState<string | null>(null);
     const [isGlobalSubmitting, setIsGlobalSubmitting] = useState(false);
+
+    const [rateLimitRemaining, setRateLimitRemaining] = useState<string | null>(null);
+    useEffect(() => {
+        const tick = () => {
+            const {allowed, remainingMs} = checkSolverRateLimit();
+            setRateLimitRemaining(allowed ? null : formatRemainingTime(remainingMs));
+        };
+        tick();
+        const interval = setInterval(tick, 1000);
+        return () => clearInterval(interval);
+    }, []);
 
     const [configState, setConfigState] = useState<EntityState<ConfigurationSingleCreateRequestDTO>>({
         mode: 'empty',
@@ -291,6 +303,19 @@ export default function ExperimentCreateModal({isOpen, initialData, onClose, onS
                     </div>
                 </div>
 
+                {rateLimitRemaining && (
+                    <div
+                        className="mx-6 mt-4 p-3 bg-amber-50 border border-amber-200 text-amber-800 text-sm rounded-md shrink-0 flex items-center gap-2">
+                        <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span>
+                            <strong>Solver rate limited</strong> — you can run the solver once per hour. Next run available in <strong>{rateLimitRemaining}</strong>.
+                        </span>
+                    </div>
+                )}
+
                 {globalError && (
                     <div
                         className="mx-6 mt-4 p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-md shrink-0">
@@ -374,9 +399,9 @@ export default function ExperimentCreateModal({isOpen, initialData, onClose, onS
                                 className="px-4 py-2 text-sm font-medium text-red-600 bg-white border border-red-200 rounded-md hover:bg-red-50 transition-colors">
                             Discard Entire Experiment
                         </button>
-                        <button onClick={handleSubmit} disabled={isGlobalSubmitting || mutation.isPending}
+                        <button onClick={handleSubmit} disabled={isGlobalSubmitting || mutation.isPending || !!rateLimitRemaining}
                                 className="px-5 py-2 text-sm font-medium text-white bg-gray-800 border border-transparent rounded-md hover:bg-gray-900 disabled:opacity-50 flex items-center transition-colors shadow-sm">
-                            {isGlobalSubmitting || mutation.isPending ? 'Processing...' : 'Create Experiment'}
+                            {rateLimitRemaining ? `Available in ${rateLimitRemaining}` : isGlobalSubmitting || mutation.isPending ? 'Processing...' : 'Create Experiment'}
                         </button>
                     </div>
                 </div>

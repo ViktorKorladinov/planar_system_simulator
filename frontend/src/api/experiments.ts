@@ -8,6 +8,7 @@ import type {
     ExperimentSortField
 } from "../types/experiments.ts";
 import {createEntity} from "./base.ts";
+import {checkSolverRateLimit, recordSolverUsage, formatRemainingTime} from "../utils/solverRateLimit.ts";
 
 const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000/api/v1';
 
@@ -59,11 +60,24 @@ export async function createExperiment(
     isDryRun: boolean = false
 ): Promise<ExperimentSingleCreateResponseDTO> {
 
-    return createEntity<ExperimentSingleCreateRequestDTO, ExperimentSingleCreateResponseDTO>(
+    if (!isDryRun) {
+        const {allowed, remainingMs} = checkSolverRateLimit();
+        if (!allowed) {
+            throw [`Solver rate limit: you can run the solver once per hour. Please wait ${formatRemainingTime(remainingMs)} before submitting again.`];
+        }
+    }
+
+    const result = await createEntity<ExperimentSingleCreateRequestDTO, ExperimentSingleCreateResponseDTO>(
         'experiments',
         data,
         isDryRun
     );
+
+    if (!isDryRun) {
+        recordSolverUsage();
+    }
+
+    return result;
 }
 
 export async function getExperiment(id: number): Promise<ExperimentSingleGetResponseDTO> {

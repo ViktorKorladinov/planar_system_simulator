@@ -9,6 +9,7 @@ import type {
     ExperimentMatrixCreateRequestDTO
 } from "../types/batches.ts";
 import {createEntity} from "./base.ts";
+import {checkSolverRateLimit, recordSolverUsage, formatRemainingTime} from "../utils/solverRateLimit.ts";
 
 const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000/api/v1';
 
@@ -45,11 +46,24 @@ export async function createBatch(
     isDryRun: boolean = false
 ): Promise<ExperimentBatchCreateResponseDTO> {
 
-    return createEntity<ExperimentBatchCreateRequestDTO, ExperimentBatchCreateResponseDTO>(
+    if (!isDryRun) {
+        const {allowed, remainingMs} = checkSolverRateLimit();
+        if (!allowed) {
+            throw [`Solver rate limit: you can run the solver once per hour. Please wait ${formatRemainingTime(remainingMs)} before submitting again.`];
+        }
+    }
+
+    const result = await createEntity<ExperimentBatchCreateRequestDTO, ExperimentBatchCreateResponseDTO>(
         'experiments/batch',
         data,
         isDryRun
     );
+
+    if (!isDryRun) {
+        recordSolverUsage();
+    }
+
+    return result;
 }
 
 export async function createBatchMatrix(
@@ -57,11 +71,24 @@ export async function createBatchMatrix(
     isDryRun: boolean = false
 ): Promise<ExperimentBatchCreateResponseDTO> {
 
-    return createEntity<ExperimentMatrixCreateRequestDTO, ExperimentBatchCreateResponseDTO>(
+    if (!isDryRun) {
+        const {allowed, remainingMs} = checkSolverRateLimit();
+        if (!allowed) {
+            throw [`Solver rate limit: you can run the solver once per hour. Please wait ${formatRemainingTime(remainingMs)} before submitting again.`];
+        }
+    }
+
+    const result = await createEntity<ExperimentMatrixCreateRequestDTO, ExperimentBatchCreateResponseDTO>(
         'experiments/batch/matrix',
         data,
         isDryRun
     );
+
+    if (!isDryRun) {
+        recordSolverUsage();
+    }
+
+    return result;
 }
 
 export async function getBatch(id: number): Promise<ExperimentBatchGetResponseDTO> {

@@ -1,64 +1,56 @@
 1
-00:00:00,000 --> 00:00:04,000
-Welcome to the interactive design and operational platform-for planar flexible manufacturing: Tile Glider.
+00:00:00,000 --> 00:00:05,500
+Welcome to Tile Glider and the XPlanar Experiment Configurator—an end-to-end platform for flexible planar manufacturing.
 
 2
-00:00:04,000 --> 00:00:08,000
-Researchers can monitor and sort experiments across 24 critical metrics including mover allocations, solver models, and status.
+00:00:06,000 --> 00:00:10,500
+Creating a new experiment is modular and intuitive. We begin by naming our trial and assembling our preconfigured building blocks.
 
 3
-00:00:13,000 --> 00:00:17,000
-Opening Experiment Details provides full visibility into configuration parameters, layouts, and orders.
+00:00:11,000 --> 00:00:15,500
+First, we select an existing solver configuration—choosing a high-throughput CPLEX model with twelve movers.
 
 4
-00:00:17,000 --> 00:00:21,000
-The Layout tab renders the factory grid twin. Hovering reagents dynamically illuminates their physical dispensers.
+00:00:16,000 --> 00:00:22,000
+Next, we select our factory layout. The digital twin renders immediately; hovering reagents dynamically illuminates their physical dispensers.
 
 5
-00:00:25,000 --> 00:00:29,000
-For finished runs, Tile Glider runs directly inside the modal for instant visual validation.
+00:00:25,000 --> 00:00:31,000
+Finally, we attach our preloaded recipe order set and submit the experiment to solve in the background.
 
 6
-00:00:33,000 --> 00:00:37,000
-Domain modeling supports pharmaceuticals and complex perfumes with scent notes, viscosity, and volatility.
+00:00:34,000 --> 00:00:40,000
+While our new trial is solving, let's inspect a completed run below it. The Details view exposes full solver parameters and factory twin allocations.
 
 7
-00:00:44,000 --> 00:00:48,000
-Custom recipes are sequenced with drag-and-drop ordering and quick insertion of physical Mixers and Cappers.
+00:00:45,000 --> 00:00:51,000
+We can review recipe sequences, inspect live Gantt milestones, and validate the embedded Tile Glider simulation directly inside the modal.
 
 8
-00:00:53,000 --> 00:00:57,000
-The visual Layout Studio generates industrial lines, loops, rings, and custom grids with drag-and-drop editing.
+00:00:56,000 --> 00:01:02,000
+Every component is modular and preconfigurable—from solver parameters and factory layouts to chemical libraries and recipe orders.
 
 9
-00:01:09,000 --> 00:01:13,000
-Fine-tune solvers from Hexaly to CPLEX Medicine with configurable batch sizes and warmup modes.
+00:01:05,000 --> 00:01:11,000
+Now entering Tile Glider—the dedicated high-fidelity simulator for full-scale trajectory telemetry.
 
 10
-00:01:20,000 --> 00:01:24,000
-The Batch Matrix engine computes Cartesian product sweeps with dry-run compatibility checks.
+00:01:12,000 --> 00:01:16,500
+Launching our newest simulation run to inspect live multi-mover trajectory execution.
 
 11
-00:01:33,000 --> 00:01:37,000
-Now entering Tile Glider, the dedicated visual simulator for planar transport systems.
+00:01:17,000 --> 00:01:23,000
+Spring-physics animations ensure centered, realistic mover dynamics across normal, fast, and high-speed presets.
 
 12
-00:01:38,000 --> 00:01:42,000
-Launching Simulation 4, featuring 12 movers, 64 tiles, and 99 patient orders.
+00:01:28,000 --> 00:01:33,500
+The interactive frame scrubber provides instant timeline seeking with accumulated 50-shade thermal traffic heatmaps.
 
 13
-00:01:45,000 --> 00:01:49,000
-Spring-physics animations provide smooth centered mover travel across speed presets.
+00:01:34,000 --> 00:01:37,500
+Collisions are strictly accounted for in the scheduler: up to three movers can safely share and navigate the same tile simultaneously without any collision risk, shown simply as a badge to reduce visual clutter.
 
 14
-00:01:54,000 --> 00:01:58,000
-The frame scrubber enables instant timeline seeking with dynamic 50-shade thermal heatmap accumulation.
-
-15
-00:02:02,000 --> 00:02:06,000
-Multi-mover stack detection displays fanned offsets and counter badges, fully synchronized with live Gantt telemetry.
-
-16
-00:02:07,000 --> 00:02:11,000
+00:01:38,000 --> 00:01:42,500
 Complete end-to-end control from experiment configuration to visual telemetry.
 
