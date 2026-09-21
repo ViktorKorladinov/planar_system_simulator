@@ -443,12 +443,10 @@ def test_map_cplex_result_to_result(mover_step_domain_model: MoverStep) -> None:
     result = map_cplex_result_to_result(cplex_result)
 
     # Assert
-    expected_paths = [
-        [step.model_dump(mode='json') for step in path]
-        for path in cplex_result.mover_paths
-    ]
-    assert result.model_dump(mode='json', exclude={"schedule"}) == {
-        "mover_paths": expected_paths,
-        "max_path": cplex_result.max_path,
-        "color_dict": cplex_result.color_dict
-    }
+    assert result.mover_paths == cplex_result.mover_paths
+    assert result.max_path == cplex_result.max_path
+    assert result.color_dict == cplex_result.color_dict
+    assert result.scheduled_cmax == cplex_result.pre_routing_cmax
+    assert result.routed_cmax == cplex_result.post_routing_cmax
+    assert result.routing_overhead_abs == cplex_result.post_routing_cmax - cplex_result.pre_routing_cmax
+    assert result.routing_time_s == cplex_result.routing_time

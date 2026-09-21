@@ -82,6 +82,7 @@ def map_experiment_domain_to_summary_response_dto(domain_model: ExperimentDomain
         Returns:
             A DTO representation of the experiment summary response.
         """
+    res = domain_model.result
     return ExperimentSummaryResponseDTO(
         id=domain_model.id,
         name=domain_model.name,
@@ -110,7 +111,13 @@ def map_experiment_domain_to_summary_response_dto(domain_model: ExperimentDomain
         batch_name=domain_model.batch_name,
         warmup=domain_model.configuration.warmup,
         interface_time=domain_model.configuration.interface_time,
-        dispensing_time=domain_model.configuration.dispensing_time
+        dispensing_time=domain_model.configuration.dispensing_time,
+        scheduled_cmax=res.scheduled_cmax if res else None,
+        routed_cmax=res.routed_cmax if res else None,
+        routing_overhead_abs=res.routing_overhead_abs if res else None,
+        routing_overhead_pct=res.routing_overhead_pct if res else None,
+        routing_iterations=res.routing_iterations if res else None,
+        total_time_s=res.total_time_s if res else None
     )
 
 
@@ -576,10 +583,42 @@ def map_experiment_domain_to_simulation_get_response_dto(
         Returns:
             A DTO representation of the simulation get response.
     """
+    res = domain_model.result
+    metrics_dict = None
+    if res is not None:
+        metrics_dict = {
+            "scheduled_cmax": res.scheduled_cmax,
+            "routed_cmax": res.routed_cmax,
+            "routing_overhead_abs": res.routing_overhead_abs,
+            "routing_overhead_pct": res.routing_overhead_pct,
+            "routing_iterations": res.routing_iterations,
+            "routing_time_s": res.routing_time_s,
+            "scheduling_time_s": res.scheduling_time_s,
+            "total_time_s": res.total_time_s,
+            "initial_interruptions": res.initial_interruptions,
+            "final_interruptions": res.final_interruptions,
+            "iterations_interruption_history": res.iterations_interruption_history,
+            "cp_solve_status": res.cp_solve_status,
+            "best_bound_internal": res.best_bound_internal,
+            "internal_gap_pct": res.internal_gap_pct,
+            "solver_branches": res.solver_branches,
+            "solver_fails": res.solver_fails,
+            "solver_choice_points": res.solver_choice_points,
+            "warm_start_cmax": res.warm_start_cmax,
+            "total_transit_time": res.total_transit_time,
+            "total_dispensing_time": res.total_dispensing_time,
+            "total_wait_time": res.total_wait_time,
+            "dispensing_to_travel_ratio": res.dispensing_to_travel_ratio,
+            "mover_busy_time_per_mover": res.mover_busy_time_per_mover,
+            "task_count": res.task_count,
+            "batch_count": res.batch_count,
+        }
+
     return SimulationGetResponseDTO(
         tile_type_dict=extract_medicine_dict(domain_model.layout.tiles),
         dispenser_dict=extract_dispensers_dict(domain_model.layout.tiles),
         gantts=map_experiment_domain_to_gannt_data_dto(domain_model),
-        order_color_dict=domain_model.result.color_dict,
-        mover_paths=map_experiment_domain_to_mover_paths_dto(domain_model)
+        order_color_dict=domain_model.result.color_dict if domain_model.result else {},
+        mover_paths=map_experiment_domain_to_mover_paths_dto(domain_model),
+        metrics=metrics_dict
     )

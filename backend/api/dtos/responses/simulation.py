@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Any
 
 from pydantic import BaseModel, Field, field_serializer
 
@@ -185,4 +185,8 @@ class SimulationGetResponseDTO(BaseModel):
     mover_paths: MoverPathsDTO = Field(
         ...,
         description="Paths for all movers."
+    )
+    metrics: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="Complete experiment metrics including routing overheads, iteration counters, CPLEX and operational stats."
     )

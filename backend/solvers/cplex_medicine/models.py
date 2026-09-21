@@ -220,3 +220,4 @@ class BatchResult(NamedTuple):
     wrappers: pd.DataFrame
     metadata: dict
     warmup_cmax: Optional[float]
+    metrics: Optional[dict] = None

@@ -64,6 +64,116 @@ class Result(BaseModel):
         description="Dictionary with colors for orders and tiles."
     )
 
+    # Core routing & overhead fields
+    scheduled_cmax: Optional[int] = Field(
+        default=None,
+        description="Pre-routing schedule makespan."
+    )
+    routed_cmax: Optional[int] = Field(
+        default=None,
+        description="Post-routing final makespan (same as max_path)."
+    )
+    routing_overhead_abs: Optional[int] = Field(
+        default=None,
+        description="Absolute routing overhead: routed_cmax - scheduled_cmax."
+    )
+    routing_overhead_pct: Optional[float] = Field(
+        default=None,
+        description="Percentage routing overhead: ((routed_cmax - scheduled_cmax) / scheduled_cmax) * 100."
+    )
+    routing_iterations: Optional[int] = Field(
+        default=None,
+        description="Number of iterations of conflict detection and schedule extension."
+    )
+
+    # Timing metrics (in seconds)
+    routing_time_s: Optional[float] = Field(
+        default=None,
+        description="Elapsed wall-clock time spent in routing and conflict resolution in seconds."
+    )
+    scheduling_time_s: Optional[float] = Field(
+        default=None,
+        description="Elapsed wall-clock time spent in CP scheduling in seconds."
+    )
+    total_time_s: Optional[float] = Field(
+        default=None,
+        description="Total elapsed solver execution time in seconds."
+    )
+
+    # Conflict and interruption metrics
+    initial_interruptions: Optional[int] = Field(
+        default=None,
+        description="Total interruptions detected in iteration 1."
+    )
+    final_interruptions: Optional[int] = Field(
+        default=None,
+        description="Total interruptions in final iteration (0 if fully conflict-free)."
+    )
+    iterations_interruption_history: Optional[List[int]] = Field(
+        default=None,
+        description="List with total interruptions detected across each routing iteration."
+    )
+
+    # CP Optimizer solver metrics
+    cp_solve_status: Optional[str] = Field(
+        default=None,
+        description="CP solver status (e.g. Optimal, Feasible)."
+    )
+    best_bound_internal: Optional[float] = Field(
+        default=None,
+        description="Internal objective bound from CP solver."
+    )
+    internal_gap_pct: Optional[float] = Field(
+        default=None,
+        description="Internal optimality gap percentage from CP solver."
+    )
+    solver_branches: Optional[int] = Field(
+        default=None,
+        description="Number of branches explored by CP solver."
+    )
+    solver_fails: Optional[int] = Field(
+        default=None,
+        description="Number of fails in CP solver search."
+    )
+    solver_choice_points: Optional[int] = Field(
+        default=None,
+        description="Number of choice points created in CP solver."
+    )
+    warm_start_cmax: Optional[float] = Field(
+        default=None,
+        description="Warm-start TSP lower-bound makespan if warmup was enabled."
+    )
+
+    # Operational & workload metrics
+    total_transit_time: Optional[int] = Field(
+        default=None,
+        description="Total transit steps across all movers."
+    )
+    total_dispensing_time: Optional[int] = Field(
+        default=None,
+        description="Total dispensing/loading steps across all movers."
+    )
+    total_wait_time: Optional[int] = Field(
+        default=None,
+        description="Total waiting/resting steps across all movers."
+    )
+    dispensing_to_travel_ratio: Optional[float] = Field(
+        default=None,
+        description="Workload ratio: total_dispensing_time / total_transit_time."
+    )
+    mover_busy_time_per_mover: Optional[Dict[str, int]] = Field(
+        default=None,
+        description="Busy time (non-wait steps) per mover."
+    )
+    task_count: Optional[int] = Field(
+        default=None,
+        description="Total number of tasks scheduled."
+    )
+    batch_count: Optional[int] = Field(
+        default=None,
+        description="Number of batches into which orders were split."
+    )
+
 
 class ExperimentDomainModel(BaseModel):
     """

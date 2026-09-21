@@ -233,9 +233,15 @@ def map_cplex_result_to_result(cplex_result: CplexResult) -> Result:
     Returns:
         Result domain model.
     """
+    overhead_abs = cplex_result.post_routing_cmax - cplex_result.pre_routing_cmax
+    overhead_pct = round(((cplex_result.post_routing_cmax - cplex_result.pre_routing_cmax) / cplex_result.pre_routing_cmax * 100.0), 2) if cplex_result.pre_routing_cmax > 0 else 0.0
     return Result(
         mover_paths=cplex_result.mover_paths,
         max_path=cplex_result.max_path,
         color_dict=cplex_result.color_dict,
-        schedule=map_finished_schedule_to_schedule(cplex_result.finished_schedule)
+        scheduled_cmax=cplex_result.pre_routing_cmax,
+        routed_cmax=cplex_result.post_routing_cmax,
+        routing_overhead_abs=overhead_abs,
+        routing_overhead_pct=overhead_pct,
+        routing_time_s=cplex_result.routing_time
     )

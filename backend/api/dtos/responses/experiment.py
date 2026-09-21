@@ -204,6 +204,30 @@ class ExperimentSummaryResponseDTO(BaseModel):
         ...,
         description="Amount of orders used for the experiment."
     )
+    scheduled_cmax: Optional[int] = Field(
+        default=None,
+        description="Pre-routing scheduled makespan."
+    )
+    routed_cmax: Optional[int] = Field(
+        default=None,
+        description="Post-routing final makespan."
+    )
+    routing_overhead_abs: Optional[int] = Field(
+        default=None,
+        description="Absolute routing overhead: routed_cmax - scheduled_cmax."
+    )
+    routing_overhead_pct: Optional[float] = Field(
+        default=None,
+        description="Percentage routing overhead."
+    )
+    routing_iterations: Optional[int] = Field(
+        default=None,
+        description="Routing iterations executed."
+    )
+    total_time_s: Optional[float] = Field(
+        default=None,
+        description="Total elapsed solve time in seconds."
+    )
 
 
 class ExperimentPaginatedGetResponseDTO(BaseModel):

@@ -326,14 +326,25 @@ class ScheduleCreator:
 
     def solve(self, model, task_vars, t_range):
         """
-            Solve the model and return the solution variables
+            Solve the model and return the solution variables and solver metrics
         """
         obj = model.max([model.end_of(task_vars[i]) for i in t_range])
         model.minimize(obj)
         result = model.solve(TimeLimit=self.data.time_limit, LogVerbosity='Terse', Workers=self.data.process_amount)
         solution = result.get_solution()
-        variables = solution.get_all_var_solutions()
-        return variables
+        variables = solution.get_all_var_solutions() if solution else []
+        solver_infos = result.get_solver_infos() if hasattr(result, 'get_solver_infos') else {}
+        metrics = {
+            "solve_status": str(result.get_solve_status()) if hasattr(result, 'get_solve_status') and result.get_solve_status() else None,
+            "solve_time": float(result.get_solve_time()) if hasattr(result, 'get_solve_time') and result.get_solve_time() is not None else None,
+            "objective_value": float(result.get_objective_value()) if hasattr(result, 'get_objective_value') and result.get_objective_value() is not None else None,
+            "objective_bound": float(result.get_objective_bound()) if hasattr(result, 'get_objective_bound') and result.get_objective_bound() is not None else None,
+            "gap": float(result.get_objective_gap()) if hasattr(result, 'get_objective_gap') and result.get_objective_gap() is not None else None,
+            "branches": int(solver_infos.get('NumberOfBranches')) if solver_infos and solver_infos.get('NumberOfBranches') is not None else None,
+            "fails": int(solver_infos.get('NumberOfFails')) if solver_infos and solver_infos.get('NumberOfFails') is not None else None,
+            "choice_points": int(solver_infos.get('NumberOfChoicePoints')) if solver_infos and solver_infos.get('NumberOfChoicePoints') is not None else None,
+        }
+        return variables, metrics
 
     def parse_solution(self, variables, metadata_vis):
         """
@@ -463,14 +474,14 @@ class ScheduleCreator:
         warm_cmax = self.apply_warmup(model, task_wraps, m_range, p_range, path_optimizer)
 
         # Solve the model and parse solution
-        solution = self.solve(model, main_task_intervals, t_range)
+        solution, metrics = self.solve(model, main_task_intervals, t_range)
         res, wrap_res = self.parse_solution(solution, meta_vis)
 
         # Reset the index
         res.sort_values('Start', inplace=True)
         res.reset_index(drop=True, inplace=True)
 
-        return BatchResult(tasks=res, wrappers=wrap_res, metadata=meta_vis, warmup_cmax=warm_cmax)
+        return BatchResult(tasks=res, wrappers=wrap_res, metadata=meta_vis, warmup_cmax=warm_cmax, metrics=metrics)
 
     def run(self):
         """

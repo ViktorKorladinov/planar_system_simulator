@@ -1,4 +1,5 @@
 import logging
+import time
 
 from domain.enums import ExperimentStatus
 from domain.models.experiment import ExperimentDomainModel
@@ -14,13 +15,16 @@ logger = logging.getLogger(__name__)
 class CplexMedicineExperimentSolver(BaseExperimentSolver):
     def solve(self, experiment_data: ExperimentDomainModel) -> ExperimentResult:
         try:
+            start_total = time.perf_counter()
             cplex_data = map_experiment_to_cplex_experiment(experiment_data)
             large_schedules_creator = LargeScheduleCreator()
-            initial_schedule = large_schedules_creator.run(cplex_data)
+            initial_schedule, cp_metrics = large_schedules_creator.run(cplex_data)
             simulation_data = map_experiment_domain_to_simulation_data(experiment_data)
             result = create_simulation(
                 schedule=initial_schedule,
-                data=simulation_data
+                data=simulation_data,
+                solver_metadata=cp_metrics,
+                start_total_time=start_total
             )
         except Exception as exc:
             logger.error(f"Exception thrown during Cplex Medicine solver execution: {exc}", exc_info=True)
