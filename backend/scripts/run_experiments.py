@@ -81,7 +81,7 @@ def parse_layout_file(filepath: str, topology_type: str) -> Dict[str, Any]:
     layout_meta = data.get("layout", {})
     n_rows = layout_meta.get("n", len(placement))
     m_cols = layout_meta.get("m", len(placement[0]) if placement else 0)
-    interface_locs = {tuple(loc) for loc in layout_meta.get("interface_locations", [])}
+    unavailable_locs = {tuple(loc) for loc in layout_meta.get("unavailable_locations", [])}
 
     tiles = []
     drugs_collected = set()
@@ -89,9 +89,9 @@ def parse_layout_file(filepath: str, topology_type: str) -> Dict[str, Any]:
     for y in range(n_rows):
         for x in range(m_cols):
             val = placement[y][x] if y < len(placement) and x < len(placement[y]) else "empty"
-            if (y, x) in interface_locs or val == "interface":
+            if val == "interface":
                 tiles.append({"type": "interface", "x": x, "y": y, "dispensed_types": None})
-            elif val == "blocked":
+            elif val == "blocked" or (y, x) in unavailable_locs:
                 tiles.append({"type": "blocked", "x": x, "y": y, "dispensed_types": None})
             elif val == "empty":
                 tiles.append({"type": "empty", "x": x, "y": y, "dispensed_types": None})
@@ -102,15 +102,24 @@ def parse_layout_file(filepath: str, topology_type: str) -> Dict[str, Any]:
                 tiles.append({"type": "dispenser", "x": x, "y": y, "dispensed_types": drug_names})
 
     sorted_drugs = sorted(list(drugs_collected))
+    basename = os.path.basename(filepath).replace(".json", "")
+    layout_name = f"Paper_{basename.upper()}"
     ingredient_list = {
-        "name": f"Medicine Ingredients ({topology_type})",
+        "name": f"Ingredients_{layout_name}",
         "type": "medicine",
-        "ingredients": [{"name": drug, "note_type": None, "phase": None} for drug in sorted_drugs]
+        "ingredients": [
+            {
+                "name": drug,
+                "note_type": None,
+                "viscosity": None,
+                "volatility_rank": None
+            }
+            for drug in sorted_drugs
+        ]
     }
 
-    basename = os.path.basename(filepath).replace(".json", "")
     return {
-        "name": f"Layout {basename.upper()}",
+        "name": layout_name,
         "type": topology_type,
         "tiles": tiles,
         "ingredient_list": ingredient_list,
@@ -121,8 +130,6 @@ def parse_layout_file(filepath: str, topology_type: str) -> Dict[str, Any]:
 def ensure_layouts(api_url: str, topology: str) -> List[int]:
     """Finds or creates layout(s) for the requested topology."""
     if topology == "all":
-        selected = list(TOPOLOGY_MAP.items())
-        # Deduplicate keys
         selected = [("square", TOPOLOGY_MAP["square"]),
                     ("double_line", TOPOLOGY_MAP["double_line"]),
                     ("line", TOPOLOGY_MAP["line"]),
@@ -133,32 +140,37 @@ def ensure_layouts(api_url: str, topology: str) -> List[int]:
             raise ValueError(f"Unknown topology '{topology}'. Choose from: {list(TOPOLOGY_MAP.keys())} or 'all'")
         selected = [(top_key, TOPOLOGY_MAP[top_key])]
 
-    existing_layouts = {}
+    existing_layouts_by_name = {}
     try:
         resp = requests.get(f"{api_url}/api/v1/layouts/", params={"size": 100}, timeout=15)
         if resp.status_code == 200:
             for lay in resp.json().get("layouts", []):
-                existing_layouts[lay.get("type")] = lay["id"]
+                if lay.get("dispenser_amount", 0) > 0:
+                    existing_layouts_by_name[lay.get("name")] = lay["id"]
     except Exception as e:
         print(f"Warning checking layouts: {e}")
 
     layout_ids = []
     for _, (top_type, filepath) in selected:
-        if top_type in existing_layouts:
-            lay_id = existing_layouts[top_type]
-            print(f"Using existing layout ID {lay_id} for topology '{top_type}'")
+        basename = os.path.basename(filepath).replace(".json", "")
+        expected_name = f"Paper_{basename.upper()}"
+
+        if expected_name in existing_layouts_by_name:
+            lay_id = existing_layouts_by_name[expected_name]
+            print(f"Using existing valid layout ID {lay_id} for '{expected_name}'")
             layout_ids.append(lay_id)
             continue
 
-        if not os.path.exists(filepath):
-            print(f"Warning: Layout file '{filepath}' not found, skipping {top_type}")
+        resolved_path = resolve_file_path(filepath)
+        if not os.path.exists(resolved_path):
+            print(f"Warning: Layout file '{filepath}' (resolved '{resolved_path}') not found, skipping {top_type}")
             continue
 
-        payload = parse_layout_file(filepath, top_type)
+        payload = parse_layout_file(resolved_path, top_type)
         resp = requests.post(f"{api_url}/api/v1/layouts/", json=payload, timeout=30)
         if resp.status_code in [200, 201]:
             lay_id = resp.json()["id"]
-            print(f"Created new layout ID {lay_id} for topology '{top_type}'")
+            print(f"Created new layout ID {lay_id} for '{expected_name}' ({top_type}) with {len(payload['tiles'])} tiles")
             layout_ids.append(lay_id)
         else:
             print(f"Error creating layout for {top_type}: {resp.status_code} {resp.text}")
