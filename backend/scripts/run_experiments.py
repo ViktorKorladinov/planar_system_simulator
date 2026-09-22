@@ -355,7 +355,8 @@ def main():
                         default="quick-test", help="Study to run (default: quick-test)")
     parser.add_argument("--topology", default="square",
                         help="Topology to evaluate: 'square', 'doubleline', 'line', 'ring', or 'all' (default: square)")
-    parser.add_argument("--api-url", default=os.getenv("BACKEND_URL", "http://localhost:8000"),
+    default_api = "http://localhost:8000" if os.path.exists("/app") else os.getenv("BACKEND_URL", "http://localhost:8000")
+    parser.add_argument("--api-url", default=default_api,
                         help="Backend API URL (default: http://localhost:8000)")
     parser.add_argument("--time-limit", type=int, default=600,
                         help="CP solver time limit in seconds (default: 600)")
