@@ -428,7 +428,13 @@ def main():
         monitor_batch(args.api_url, batch_id)
 
         # 6. Export results
-        output_csv = args.output or f"{args.mode}_results.csv"
+        if args.output:
+            output_csv = args.output
+        elif os.path.exists("/app/data/plots"):
+            output_csv = f"/app/data/plots/{args.mode}_results.csv"
+        else:
+            output_csv = f"{args.mode}_results.csv"
+
         print(f"\nExporting results to {output_csv}...")
         export_cmd = f"python {os.path.join(os.path.dirname(__file__), 'export_experiment_results.py')} --api-url {args.api_url} --batch-id {batch_id} --output {output_csv}"
         os.system(export_cmd)
