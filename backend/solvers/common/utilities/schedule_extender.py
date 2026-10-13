@@ -27,23 +27,23 @@ class ScheduleExtender:
         if 'TicksAdded' not in self.schedule.columns:
             self.schedule['TicksAdded'] = 0
 
-        # Group tasks by mover and dispenser
+        # Group tasks by mover and physical tile
         self.mover_groups = {}
-        self.disp_groups = {}
+        self.tile_groups = {}
         self._group_tasks()
 
     def _group_tasks(self) -> None:
-        """Groups tasks by mover and dispenser for constraint generation."""
+        """Groups tasks by mover and physical tile for constraint generation."""
         # Get indices of tasks grouped by mover
         grp_mover = self.schedule.groupby('Mover')
         self.mover_groups = {
             mover: group.index.to_numpy() for mover, group in grp_mover
         }
-        # Get indices of tasks grouped by dispenser
-        grp_disp = self.schedule.groupby(['Tile', 'Dispenser'])
-        self.disp_groups = {
-            f"{tile}x{dispenser}": group.index.to_numpy()
-            for (tile, dispenser), group in grp_disp
+        # Get indices of tasks grouped by physical tile (enforces tile-exclusivity across all dispensers)
+        grp_tile = self.schedule.groupby('Tile')
+        self.tile_groups = {
+            tile: group.index.to_numpy()
+            for tile, group in grp_tile
         }
 
     def _travel_time(self, index1: int, index2: int) -> int:
@@ -113,14 +113,13 @@ class ScheduleExtender:
                 model.addConstr(s[next_task] >= s[curr] + p[curr] + setup_time,
                                 name=f"mover_{mover_id}_task_{curr}_to_{next_task}")
 
-        # Add dispenser constraints
-        for disp_id, disp_array in self.disp_groups.items():
-            # Add constraints: each dispenser has one task running at a time
-            for i in range(len(disp_array) - 1):
-                curr = disp_array[i]
-                next_task = disp_array[i + 1]
+        # Add tile exclusivity constraints (one mover per physical tile at a time)
+        for tile_id, tile_array in self.tile_groups.items():
+            for i in range(len(tile_array) - 1):
+                curr = tile_array[i]
+                next_task = tile_array[i + 1]
 
-                model.addConstr(s[next_task] >= s[curr] + p[curr], name=f"dispenser_lock")
+                model.addConstr(s[next_task] >= s[curr] + p[curr], name=f"tile_{tile_id}_lock")
 
         # Objective: minimize makespan
         z = model.addVar(lb=0, name="makespan")
