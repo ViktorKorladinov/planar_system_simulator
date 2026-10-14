@@ -587,6 +587,7 @@ def map_experiment_domain_to_simulation_get_response_dto(
     metrics_dict = None
     if res is not None:
         metrics_dict = {
+            "cp_cmax": res.cp_cmax,
             "scheduled_cmax": res.scheduled_cmax,
             "routed_cmax": res.routed_cmax,
             "routing_overhead_abs": res.routing_overhead_abs,
@@ -605,6 +606,7 @@ def map_experiment_domain_to_simulation_get_response_dto(
             "solver_fails": res.solver_fails,
             "solver_choice_points": res.solver_choice_points,
             "warm_start_cmax": res.warm_start_cmax,
+            "lower_bound_cmax": res.lower_bound_cmax,
             "total_transit_time": res.total_transit_time,
             "total_dispensing_time": res.total_dispensing_time,
             "total_wait_time": res.total_wait_time,

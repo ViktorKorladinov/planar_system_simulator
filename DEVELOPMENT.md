@@ -108,15 +108,25 @@ Paths below are relative to `backend/` unless stated otherwise.
 - Paper batches in the DB: 4 = overhead matrix (320), 5 = scalability, 6 = batching, 7 = lower bound,
   10/11 = reruns of overhead runs affected by the routing fixes (names `Rerun of … (exp <id>)`).
 
-## Known issues (not fixed)
+## Fixed issues and metric changes
 
-- Lower bound: `orig_distances = len(path)` is distance + 1, and the 20 s Gurobi incumbent is used as a
-  bound; in batch 7, 42/240 runs have LB > CP makespan.
-- `scheduled_cmax` is measured before compression, so batched runs can show negative routing overhead.
-- R_D/T counts all loading steps, including interface operations and the initial wait before a mover's
-  first task.
-- `ScheduleCreator.__init__` builds `self.movers` from `dispensing_time` (only affects the visualizer).
-- Batches 4–7 ran before the tile-lock and transit-capacity fixes (image built 2026-09-21).
+Results produced before these fixes (batches 4–11 on vortex) used the old behaviour; do not mix their
+`scheduled_cmax`, `total_dispensing_time`, R_D/T, or lower bounds with runs made after the fixes.
+
+- Lower bound (`lowerbound_heuristic.py`): coordinates were transposed (row, column) vs. `PathOptimizer`'s
+  (x, y), giving zero travel on line/doubleline, and distances were path length (= distance + 1) on
+  square/ring, making the bound invalid (batch 7: 42/240 runs with LB > CP makespan). Fixed; unreachable
+  pairs now raise. The bound is reported as `lower_bound_cmax` (proven Gurobi `ObjBound`, rounded up);
+  `warm_start_cmax` stays the P||Cmax incumbent and is not a bound.
+- Interface operations use `configuration.interface_time` (was hard-coded 3) in the CP model and the bound.
+- `scheduled_cmax` is now the makespan of the compressed schedule (before routing delays); the raw CP
+  makespan is `cp_cmax`. Previously `scheduled_cmax` was the raw CP makespan, so batched runs could show
+  negative routing overhead.
+- `total_dispensing_time` (and R_D/T) is now the nominal drug-dispensing time from the final schedule,
+  excluding interface operations and pauses. The wait before a mover's first task is an `e` (idle) step,
+  no longer `loading`.
+- `ScheduleCreator.movers` is built from `mover_amount` (was `dispensing_time`; visualizer only).
+- Tile lock and transit capacity in routing: batches 4–7 ran before these fixes (image built 2026-09-21).
 
 ## Rules
 

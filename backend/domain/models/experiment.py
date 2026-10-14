@@ -65,9 +65,13 @@ class Result(BaseModel):
     )
 
     # Core routing & overhead fields
+    cp_cmax: Optional[int] = Field(
+        default=None,
+        description="Makespan of the CP schedule as returned by the solver (batches merged with fixed offsets)."
+    )
     scheduled_cmax: Optional[int] = Field(
         default=None,
-        description="Pre-routing schedule makespan."
+        description="Pre-routing schedule makespan: makespan of the compressed CP schedule, before routing delays."
     )
     routed_cmax: Optional[int] = Field(
         default=None,
@@ -141,7 +145,11 @@ class Result(BaseModel):
     )
     warm_start_cmax: Optional[float] = Field(
         default=None,
-        description="Warm-start TSP lower-bound makespan if warmup was enabled."
+        description="Makespan of the warm-start P||Cmax solution (incumbent) if warmup was enabled. Not a lower bound."
+    )
+    lower_bound_cmax: Optional[int] = Field(
+        default=None,
+        description="Makespan lower bound (SHPPN + P||Cmax proven bound) if warmup was enabled."
     )
 
     # Operational & workload metrics
@@ -151,7 +159,7 @@ class Result(BaseModel):
     )
     total_dispensing_time: Optional[int] = Field(
         default=None,
-        description="Total dispensing/loading steps across all movers."
+        description="Total nominal drug-dispensing time (excluding interface operations and pauses)."
     )
     total_wait_time: Optional[int] = Field(
         default=None,
@@ -163,7 +171,7 @@ class Result(BaseModel):
     )
     mover_busy_time_per_mover: Optional[Dict[str, int]] = Field(
         default=None,
-        description="Busy time (non-wait steps) per mover."
+        description="Busy time (transit and loading steps, excluding waits) per mover."
     )
     task_count: Optional[int] = Field(
         default=None,

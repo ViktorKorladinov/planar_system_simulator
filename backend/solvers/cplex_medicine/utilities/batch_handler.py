@@ -10,7 +10,7 @@ from solvers.common.utilities.path_optimizer import PathOptimizer
 from solvers.common.utilities.schedule_visualiser import ScheduleVisualizer
 from solvers.cplex_medicine.models import BatchResult
 from solvers.cplex_medicine.models import CplexExperimentModel
-from solvers.cplex_medicine.utilities.lowerbound_heuristic import get_patient_arrangement
+from solvers.cplex_medicine.utilities.lowerbound_heuristic import get_patient_arrangement, get_lower_bound
 
 pd.options.mode.chained_assignment = None
 np.float_ = np.float64
@@ -38,7 +38,7 @@ class ScheduleCreator:
         self.distance_matrix = self.calculate_distance_matrix()
 
         # Initialize movers
-        self.movers = [f'mover{x}' for x in range(data.dispensing_time)]
+        self.movers = [f'mover{x}' for x in range(data.mover_amount)]
 
         # Visualization
         self.visualizer = None
@@ -59,7 +59,7 @@ class ScheduleCreator:
         patients_df = pd.DataFrame([p.model_dump() for p in selected_patients])
         patients_df['drug_names'] = patients_df['drug_names'].apply(lambda x: ['interface', 'interface'] + x)
         patients_df['dosages'] = patients_df['dosages'].apply(
-            lambda x: [3, 3] + [i * self.data.dispensing_time for i in x])
+            lambda x: [self.data.interface_time, self.data.interface_time] + [i * self.data.dispensing_time for i in x])
         self.patients_df = patients_df
 
     def gen_positions(self) -> None:
@@ -389,21 +389,23 @@ class ScheduleCreator:
 
     def apply_warmup(self, m, task_wraps, m_range, p_range, path_optimizer: PathOptimizer):
         """
-            Apply warmup solution if requested
+            Apply warmup solution if requested. Returns the warm-start makespan and the makespan lower bound.
         """
         warm_cmax = None
+        lower_bound = None
         if self.data.warmup:
             g_model, warm_df, warm_x = get_patient_arrangement(
                 path_optimizer=PathOptimizer(self.rows, self.cols, self.filled, self.unavailable_coords),
                 data=self.data)
             warm_cmax = g_model.x[-1]
+            lower_bound = get_lower_bound(g_model)
             warmstart = m.create_empty_solution()
             for i in m_range:
                 for j in p_range:
                     if warm_x[i, j].x > 0.5:
                         warmstart.add_interval_var_solution(task_wraps[i][j], presence=True)
             m.set_starting_point(warmstart)
-        return warm_cmax
+        return warm_cmax, lower_bound
 
     def merge_schedules(self, schedules):
         """
@@ -471,7 +473,7 @@ class ScheduleCreator:
 
         # Apply warmup if requested
         path_optimizer = PathOptimizer(self.rows, self.cols, self.filled, self.unavailable_coords)
-        warm_cmax = self.apply_warmup(model, task_wraps, m_range, p_range, path_optimizer)
+        warm_cmax, lower_bound = self.apply_warmup(model, task_wraps, m_range, p_range, path_optimizer)
 
         # Solve the model and parse solution
         solution, metrics = self.solve(model, main_task_intervals, t_range)
@@ -481,7 +483,8 @@ class ScheduleCreator:
         res.sort_values('Start', inplace=True)
         res.reset_index(drop=True, inplace=True)
 
-        return BatchResult(tasks=res, wrappers=wrap_res, metadata=meta_vis, warmup_cmax=warm_cmax, metrics=metrics)
+        return BatchResult(tasks=res, wrappers=wrap_res, metadata=meta_vis, warmup_cmax=warm_cmax, metrics=metrics,
+                           lower_bound=lower_bound)
 
     def run(self):
         """
