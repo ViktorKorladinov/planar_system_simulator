@@ -4,7 +4,8 @@ Aggregates the routing-overhead experiment matrix into the LaTeX tables and summ
 
 The base CSV is an export of the overhead matrix (export_experiment_results.py). Optionally, a CSV with reruns
 can be supplied; each rerun must be named "Rerun of <original name> (exp <original experiment id>)" and replaces
-the original run with that experiment ID.
+the original run with that experiment ID. R_D/T can be overridden for every run with values recomputed by
+recompute_post_hoc_metrics.py.
 
 Generated tables:
     routing_cmax_effect_d10.tex, routing_cmax_effect_d1.tex          (per mover count, all topologies)
@@ -14,7 +15,7 @@ Generated tables:
 Usage:
     python summarize_overhead_matrix.py --base overhead_matrix_results.csv
     python summarize_overhead_matrix.py --base overhead_matrix_results.csv --reruns rerun_results.csv \
-        --output-dir ../../../xplanar/figs/tables
+        --ratios overhead_recomputed.csv rerun_recomputed.csv --output-dir ../../../xplanar/figs/tables
 """
 
 import argparse
@@ -31,12 +32,13 @@ SPEEDS = [(10, "standard"), (1, "fast")]
 RERUN_NAME_PATTERN = re.compile(r"^Rerun of .* \(exp (\d+)\)$")
 
 
-def load_runs(base_path: str, reruns_path: Optional[str]) -> List[Dict[str, Any]]:
-    """Loads base runs and replaces the ones that were rerun."""
+def load_runs(base_path: str, reruns_paths: Optional[List[str]] = None,
+              ratio_paths: Optional[List[str]] = None) -> List[Dict[str, Any]]:
+    """Loads base runs, replaces the ones that were rerun, and optionally overrides R_D/T per experiment."""
     with open(base_path, encoding="utf-8") as f:
         runs = {row["experiment_id"]: row for row in csv.DictReader(f)}
 
-    if reruns_path:
+    for reruns_path in reruns_paths or []:
         with open(reruns_path, encoding="utf-8") as f:
             for row in csv.DictReader(f):
                 match = RERUN_NAME_PATTERN.match(row["experiment_name"] or "")
@@ -50,6 +52,18 @@ def load_runs(base_path: str, reruns_path: Optional[str]) -> List[Dict[str, Any]
                     if row[key] != original[key]:
                         raise ValueError(f"Rerun {row['experiment_id']} differs from original in {key}")
                 runs[original_id] = row
+
+    if ratio_paths:
+        # Recomputed R_D/T (recompute_post_hoc_metrics.py), keyed by the ID of the experiment actually used
+        ratios = {}
+        for ratio_path in ratio_paths:
+            with open(ratio_path, encoding="utf-8") as f:
+                ratios.update({row["experiment_id"]: row["dispensing_to_travel_ratio"] for row in csv.DictReader(f)})
+        missing = [row["experiment_id"] for row in runs.values() if row["experiment_id"] not in ratios]
+        if missing:
+            raise ValueError(f"No recomputed R_D/T for experiments {missing}; refusing to mix definitions")
+        for row in runs.values():
+            row["dispensing_to_travel_ratio"] = ratios[row["experiment_id"]]
 
     result = []
     for row in runs.values():
@@ -207,11 +221,14 @@ def print_summary(runs: List[Dict[str, Any]]) -> None:
 def main():
     parser = argparse.ArgumentParser(description="Aggregate the routing-overhead matrix into paper tables.")
     parser.add_argument("--base", required=True, help="CSV export of the overhead matrix")
-    parser.add_argument("--reruns", default=None, help="Optional CSV export of reruns replacing original runs")
+    parser.add_argument("--reruns", nargs="*", default=None,
+                        help="Optional CSV export(s) of reruns replacing original runs")
+    parser.add_argument("--ratios", nargs="*", default=None,
+                        help="Optional CSV(s) from recompute_post_hoc_metrics.py overriding R_D/T for every run")
     parser.add_argument("--output-dir", default=None, help="Directory to write the LaTeX tables to")
     args = parser.parse_args()
 
-    runs = load_runs(args.base, args.reruns)
+    runs = load_runs(args.base, args.reruns, args.ratios)
     print_summary(runs)
 
     if args.output_dir:
