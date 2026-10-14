@@ -18,6 +18,7 @@ class ConfigurationORM(Base):
     process_amount = Column(Integer, nullable=False)
     batch_size = Column(Integer, nullable=True)
     warmup = Column(Boolean, nullable=True)
+    random_seed = Column(Integer, nullable=True)
     dispense_rate = Column(Float, nullable=True)
     viscosity_exponent = Column(Float, nullable=True)
     mover_speed = Column(Float, nullable=True)

@@ -84,12 +84,14 @@ services:
   # =========================================================================
   # Celery Background Worker
   # =========================================================================
+  # Each worker solves one experiment at a time; scale with `docker compose up -d --scale celery_worker=N`.
+  # WORKER_MEM_LIMIT caps the RAM of every worker container.
   celery_worker:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: planar_celery_worker
     restart: unless-stopped
+    mem_limit: ${WORKER_MEM_LIMIT:-4g}
     command: ["celery", "-A", "core.celery_app", "worker", "--loglevel=info", "-P", "solo"]
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-user}:${POSTGRES_PASSWORD:-password}@db:5432/${POSTGRES_DB:-dbname}

@@ -240,7 +240,7 @@ def warm_up(n_patients, layout: CplexLayout, dosage_ratio, interface_time, patie
     return patient_time
 
 
-def optimize(n_movers, n_patients, patient_time):
+def optimize(n_movers, n_patients, patient_time, time_limit=20, threads=None, callback=None):
     m = g.Model()
     x = m.addVars(n_movers, n_patients, vtype=g.GRB.BINARY)
     Cmax = m.addVar(vtype=g.GRB.CONTINUOUS, obj=1)
@@ -251,8 +251,11 @@ def optimize(n_movers, n_patients, patient_time):
     for i in range(n_movers):
         m.addConstr(g.quicksum([x[i, j] * patient_time[j] for j in range(n_patients)]) <= Cmax)
 
-    m.params.timelimit = 20
-    m.optimize()
+    if time_limit is not None:
+        m.params.timelimit = time_limit
+    if threads is not None:
+        m.params.Threads = threads
+    m.optimize(callback) if callback is not None else m.optimize()
     return m, x
 
 
@@ -286,10 +289,10 @@ def parse_results(n_movers, n_patients, patient_time, x):
     return df
 
 
-def get_patient_arrangement(path_optimizer: PathOptimizer, data: CplexExperimentModel):
+def get_patient_arrangement(path_optimizer: PathOptimizer, data: CplexExperimentModel, time_limit=20):
     patient_list, dosage_list = load_real_patients(data)
     patient_time = warm_up(len(data.orders), data.layout, data.dispensing_time, data.interface_time, patient_list,
                            dosage_list, path_optimizer)
-    model, x = optimize(data.mover_amount, len(data.orders), patient_time)
+    model, x = optimize(data.mover_amount, len(data.orders), patient_time, time_limit=time_limit)
     df = parse_results(data.mover_amount, len(data.orders), patient_time, x)
     return model, df, x

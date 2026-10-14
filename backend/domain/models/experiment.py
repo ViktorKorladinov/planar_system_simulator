@@ -149,7 +149,11 @@ class Result(BaseModel):
     )
     lower_bound_cmax: Optional[int] = Field(
         default=None,
-        description="Makespan lower bound (SHPPN + P||Cmax proven bound) if warmup was enabled."
+        description="Makespan lower bound (SHPPN + P||Cmax proven bound)."
+    )
+    cp_progress: Optional[List[List[List[float]]]] = Field(
+        default=None,
+        description="Per batch, the [solve time in seconds, objective] of every solution found by the CP solver."
     )
 
     # Operational & workload metrics

@@ -59,7 +59,9 @@ Paths below are relative to `backend/` unless stated otherwise.
 
 ## Data
 
-- `data/orders.json`: 99 orders (3–7 drugs, 34 distinct drugs). No larger order sets exist in micka.
+- `data/orders.json`: 99 orders (3–7 drugs, 34 distinct drugs).
+- `data/order_sets/orders_set{1..5}.json`: five disjoint 100-order sets cut from one 1,000-order run of the
+  generator (`scripts/import_order_sets.py`, SEQN 0–499); set 1 = `orders.json` + SEQN 99.
 - `data/layouts/{square,doubleline,line,ring}64.json`: 64-tile benchmarks, 80 dispensers each;
   60 dispenser tiles + 4 interfaces (doubleline: 62 + 2). Identical copies exist in `../data/layouts/`,
   `../orders.json`, and `data/square64.json`.
@@ -69,7 +71,9 @@ Paths below are relative to `backend/` unless stated otherwise.
 
 ## Scripts: `scripts/`
 
-- `run_experiments.py`: REST client that creates layouts/order lists and submits a matrix.
+- `run_experiments.py`: REST client that creates layouts/order lists and submits a matrix. `--order-files`
+  uploads one order list per file (e.g. `data/order_sets/orders_set*.json`), `--solver-seeds` runs every
+  configuration once per CP random seed.
   Modes: quick-test, overhead, scalability, batching, lowerbound. Default `--time-limit 600`; the paper
   runs used `--time-limit 300`.
 - `export_experiment_results.py`: exports finished experiments of a batch to CSV via the API.
@@ -101,9 +105,12 @@ Paths below are relative to `backend/` unless stated otherwise.
 - Only `backend/scripts` and `backend/data` are mounted into the containers. Solver code is baked into the
   image: after changing solver code, `git pull` on the server, then
   `docker compose build backend celery_worker && docker compose up -d backend celery_worker`.
-  Verify with md5/grep inside `planar_celery_worker`.
-- The Celery worker runs with `-P solo` and experiments use `process_amount=1`: one run at a time, one CP
-  worker. A 300 s run takes about 6.5 min including routing.
+  Verify with md5/grep inside a worker container (`docker compose ps celery_worker`).
+- Each Celery worker runs with `-P solo` (one experiment at a time) and experiments use `process_amount=1`
+  (one CP worker); Gurobi is limited to `GUROBI_THREADS` (default 1). Run several in parallel with
+  `WORKER_MEM_LIMIT=4g docker compose up -d --scale celery_worker=N`. A 300 s run takes about 6.5 min.
+- vortex is shared and not reserved: set a RAM limit and post a status update (with max RAM) in the channel
+  when starting and finishing experiments.
 - `/app/data/plots` is a named Docker volume, not the host folder. Inside the container pass
   `--api-url http://localhost:8000` (the env `BACKEND_URL` points to the public URL). Listing 100 experiments
   can take more than 30 s.

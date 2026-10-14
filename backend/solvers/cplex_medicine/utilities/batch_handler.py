@@ -4,7 +4,10 @@ import numpy as np
 import pandas as pd
 from docplex.cp.model import CpoModel
 from docplex.cp.solution import CpoSequenceVarSolution
+from docplex.cp.solver.solver import CpoSolver
+from docplex.cp.solver.solver_listener import CpoSolverListener
 
+from core.config import settings
 from domain.enums import LayoutType
 from solvers.common.utilities.path_optimizer import PathOptimizer
 from solvers.common.utilities.schedule_visualiser import ScheduleVisualizer
@@ -14,6 +17,17 @@ from solvers.cplex_medicine.utilities.lowerbound_heuristic import get_patient_ar
 
 pd.options.mode.chained_assignment = None
 np.float_ = np.float64
+
+
+class ProgressListener(CpoSolverListener):
+    """Records (solve time in seconds, objective value) of every solution found during the search."""
+
+    def __init__(self):
+        self.progress = []
+
+    def result_found(self, solver, sres):
+        if sres.is_solution() and sres.get_objective_value() is not None:
+            self.progress.append([round(float(sres.get_solve_time()), 3), float(sres.get_objective_value())])
 
 
 class ScheduleCreator:
@@ -330,7 +344,14 @@ class ScheduleCreator:
         """
         obj = model.max([model.end_of(task_vars[i]) for i in t_range])
         model.minimize(obj)
-        result = model.solve(TimeLimit=self.data.time_limit, LogVerbosity='Terse', Workers=self.data.process_amount)
+        params = {'TimeLimit': self.data.time_limit, 'LogVerbosity': 'Terse', 'Workers': self.data.process_amount}
+        if self.data.random_seed is not None:
+            params['RandomSeed'] = self.data.random_seed
+        # Search solution by solution so that every improving solution is recorded with its time
+        solver = CpoSolver(model, solve_with_search_next=True, **params)
+        progress_listener = ProgressListener()
+        solver.add_listener(progress_listener)
+        result = solver.solve()
         solution = result.get_solution()
         variables = solution.get_all_var_solutions() if solution else []
         solver_infos = result.get_solver_infos() if hasattr(result, 'get_solver_infos') else {}
@@ -343,6 +364,7 @@ class ScheduleCreator:
             "branches": int(solver_infos.get('NumberOfBranches')) if solver_infos and solver_infos.get('NumberOfBranches') is not None else None,
             "fails": int(solver_infos.get('NumberOfFails')) if solver_infos and solver_infos.get('NumberOfFails') is not None else None,
             "choice_points": int(solver_infos.get('NumberOfChoicePoints')) if solver_infos and solver_infos.get('NumberOfChoicePoints') is not None else None,
+            "progress": progress_listener.progress,
         }
         return variables, metrics
 
@@ -389,16 +411,17 @@ class ScheduleCreator:
 
     def apply_warmup(self, m, task_wraps, m_range, p_range, path_optimizer: PathOptimizer):
         """
-            Apply warmup solution if requested. Returns the warm-start makespan and the makespan lower bound.
+            Compute the makespan lower bound and apply the warmup solution if requested.
+            Returns the warm-start makespan (None without warmup) and the makespan lower bound.
         """
+        g_model, warm_df, warm_x = get_patient_arrangement(
+            path_optimizer=PathOptimizer(self.rows, self.cols, self.filled, self.unavailable_coords),
+            data=self.data,
+            time_limit=settings.LOWER_BOUND_TIME_LIMIT)
+        lower_bound = get_lower_bound(g_model)
         warm_cmax = None
-        lower_bound = None
         if self.data.warmup:
-            g_model, warm_df, warm_x = get_patient_arrangement(
-                path_optimizer=PathOptimizer(self.rows, self.cols, self.filled, self.unavailable_coords),
-                data=self.data)
             warm_cmax = g_model.x[-1]
-            lower_bound = get_lower_bound(g_model)
             warmstart = m.create_empty_solution()
             for i in m_range:
                 for j in p_range:

@@ -240,6 +240,46 @@ def create_order_lists(api_url: str, order_file: str, seeds_count: int = 5,
     return order_list_ids
 
 
+def create_order_lists_from_files(api_url: str, order_files: List[str]) -> List[int]:
+    """Uploads one order list per file (e.g. independent order sets from import_order_sets.py), reusing existing ones."""
+    existing_map = {}
+    try:
+        resp = requests.get(f"{api_url}/api/v1/order_lists/", params={"size": 100}, timeout=300)
+        if resp.status_code == 200:
+            for ol in resp.json().get("order_lists", []):
+                existing_map[ol["name"]] = ol["id"]
+    except Exception:
+        pass
+
+    order_list_ids = []
+    for order_file in order_files:
+        with open(resolve_file_path(order_file), "r", encoding="utf-8") as f:
+            data = json.load(f)
+        name = data.get("name") or os.path.basename(order_file).replace(".json", "")
+        if name in existing_map:
+            print(f"Using existing OrderList ID {existing_map[name]} ('{name}')")
+            order_list_ids.append(existing_map[name])
+            continue
+        payload = {"name": name, "type": "medicine", "orders": data["orders"]}
+        resp = requests.post(f"{api_url}/api/v1/order_lists/", json=payload, timeout=60)
+        if resp.status_code not in [200, 201]:
+            raise RuntimeError(f"Failed to create order list '{name}': {resp.text}")
+        order_list_ids.append(resp.json()["id"])
+        print(f"Created OrderList ID: {order_list_ids[-1]} ('{name}', {len(data['orders'])} orders)")
+    return order_list_ids
+
+
+def apply_solver_seeds(configs: List[Dict[str, Any]], solver_seeds: Optional[List[int]]) -> List[Dict[str, Any]]:
+    """Returns one copy of every configuration per CP solver seed (configurations unchanged if no seeds given)."""
+    if not solver_seeds:
+        return configs
+    seeded = []
+    for seed in solver_seeds:
+        for config in configs:
+            seeded.append({**config, "name": f"{config['name']}_S{seed}", "random_seed": seed})
+    return seeded
+
+
 def build_configurations(mode: str, time_limit: int) -> List[Dict[str, Any]]:
     """Builds the list of ConfigurationDTOs for the chosen study mode."""
     configs = []
@@ -364,6 +404,10 @@ def main():
                         help="Number of independent order set replications (default: 5)")
     parser.add_argument("--order-file", default="orders.json",
                         help="Path to base orders JSON file (default: orders.json)")
+    parser.add_argument("--order-files", nargs="+", default=None,
+                        help="Order-set JSON files, one independent order list per file (overrides --order-file)")
+    parser.add_argument("--solver-seeds", nargs="+", type=int, default=None,
+                        help="CP solver random seeds; every configuration is run once per seed")
     parser.add_argument("--dry-run", action="store_true",
                         help="Validate matrix with API without queueing")
     parser.add_argument("--no-wait", action="store_true",
@@ -381,7 +425,9 @@ def main():
     layout_ids = ensure_layouts(args.api_url, args.topology)
 
     # 2. Ensure Order Lists
-    if args.mode == "quick-test":
+    if args.order_files:
+        order_list_ids = create_order_lists_from_files(args.api_url, args.order_files)
+    elif args.mode == "quick-test":
         order_list_ids = create_order_lists(args.api_url, args.order_file, seeds_count=1, subsets=[10])
     elif args.mode in ["scalability", "lowerbound"]:
         subsets = [10, 25, 50, 99] if args.mode == "scalability" else [25, 50, 99]
@@ -390,7 +436,7 @@ def main():
         order_list_ids = create_order_lists(args.api_url, args.order_file, seeds_count=args.seeds)
 
     # 3. Build Configurations
-    configurations = build_configurations(args.mode, args.time_limit)
+    configurations = apply_solver_seeds(build_configurations(args.mode, args.time_limit), args.solver_seeds)
 
     matrix_size = len(layout_ids) * len(configurations) * len(order_list_ids)
     print(f"\nMatrix plan: {len(layout_ids)} layout(s) x {len(configurations)} config(s) x {len(order_list_ids)} order set(s) = {matrix_size} experiment run(s).")

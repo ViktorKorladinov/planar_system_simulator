@@ -93,6 +93,10 @@ class CplexExperimentModel(BaseModel):
         ...,
         description="Time required by operations at the interface in seconds."
     )
+    random_seed: Optional[int] = Field(
+        default=None,
+        description="Random seed of the CP solver (solver default if not set)."
+    )
     layout: CplexLayout = Field(
         ...,
         description="Layout for the experiment."

@@ -1,0 +1,2375 @@
+{
+  "name": "orders_set2",
+  "type": "medicine",
+  "source": "generated_capsules_with_dosages.csv, SEQN 100-199",
+  "orders": [
+    {
+      "items": [
+        {
+          "name": "AMLODIPINE",
+          "quantity": 6
+        },
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 9
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 10
+        },
+        {
+          "name": "LOSARTAN",
+          "quantity": 17
+        },
+        {
+          "name": "METFORMIN",
+          "quantity": 13
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 7
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "METOPROLOL",
+          "quantity": 14
+        },
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 14
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 3
+        },
+        {
+          "name": "METFORMIN",
+          "quantity": 15
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 18
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "OMEPRAZOLE",
+          "quantity": 4
+        },
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 3
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 11
+        },
+        {
+          "name": "METFORMIN",
+          "quantity": 12
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 14
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "METOPROLOL",
+          "quantity": 16
+        },
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 6
+        },
+        {
+          "name": "TAMSULOSIN",
+          "quantity": 3
+        },
+        {
+          "name": "ATORVASTATIN",
+          "quantity": 7
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 10
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 14
+        },
+        {
+          "name": "WARFARIN",
+          "quantity": 10
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "OMEPRAZOLE",
+          "quantity": 3
+        },
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 9
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 11
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 17
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 15
+        },
+        {
+          "name": "ATORVASTATIN",
+          "quantity": 6
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 13
+        },
+        {
+          "name": "METFORMIN",
+          "quantity": 10
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 5
+        },
+        {
+          "name": "GLIPIZIDE",
+          "quantity": 4
+        },
+        {
+          "name": "CLOPIDOGREL",
+          "quantity": 7
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "METOPROLOL",
+          "quantity": 9
+        },
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 4
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 7
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "LEVOTHYROXINE",
+          "quantity": 9
+        },
+        {
+          "name": "METOPROLOL",
+          "quantity": 10
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 7
+        },
+        {
+          "name": "METFORMIN",
+          "quantity": 14
+        },
+        {
+          "name": "GLIPIZIDE",
+          "quantity": 5
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 5
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 9
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 8
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "ATORVASTATIN",
+          "quantity": 6
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 7
+        },
+        {
+          "name": "LOSARTAN",
+          "quantity": 19
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "LISINOPRIL",
+          "quantity": 3
+        },
+        {
+          "name": "METFORMIN",
+          "quantity": 13
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 5
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "AMLODIPINE",
+          "quantity": 5
+        },
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 7
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 4
+        },
+        {
+          "name": "METFORMIN",
+          "quantity": 14
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 7
+        },
+        {
+          "name": "ATENOLOL",
+          "quantity": 18
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 11
+        },
+        {
+          "name": "ATORVASTATIN",
+          "quantity": 13
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 13
+        },
+        {
+          "name": "METFORMIN",
+          "quantity": 10
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 15
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "LEVOTHYROXINE",
+          "quantity": 1
+        },
+        {
+          "name": "METOPROLOL",
+          "quantity": 16
+        },
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 11
+        },
+        {
+          "name": "ATENOLOL",
+          "quantity": 11
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 12
+        },
+        {
+          "name": "TAMSULOSIN",
+          "quantity": 2
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 11
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 5
+        },
+        {
+          "name": "WARFARIN",
+          "quantity": 3
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "LISINOPRIL",
+          "quantity": 6
+        },
+        {
+          "name": "METFORMIN",
+          "quantity": 11
+        },
+        {
+          "name": "ROSUVASTATIN",
+          "quantity": 4
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "LEVOTHYROXINE",
+          "quantity": 5
+        },
+        {
+          "name": "OMEPRAZOLE",
+          "quantity": 4
+        },
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 15
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 14
+        },
+        {
+          "name": "METFORMIN",
+          "quantity": 13
+        },
+        {
+          "name": "PIOGLITAZONE",
+          "quantity": 5
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 5
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "AMLODIPINE",
+          "quantity": 4
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 5
+        },
+        {
+          "name": "METFORMIN",
+          "quantity": 11
+        },
+        {
+          "name": "PRAVASTATIN",
+          "quantity": 8
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 19
+        },
+        {
+          "name": "GLIPIZIDE",
+          "quantity": 7
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "METOPROLOL",
+          "quantity": 7
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 13
+        },
+        {
+          "name": "ATENOLOL",
+          "quantity": 5
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "LEVOTHYROXINE",
+          "quantity": 4
+        },
+        {
+          "name": "ATORVASTATIN",
+          "quantity": 14
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 7
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 7
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "METOPROLOL",
+          "quantity": 15
+        },
+        {
+          "name": "ATORVASTATIN",
+          "quantity": 3
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 15
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 13
+        },
+        {
+          "name": "CLOPIDOGREL",
+          "quantity": 6
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "AMLODIPINE",
+          "quantity": 6
+        },
+        {
+          "name": "METOPROLOL",
+          "quantity": 5
+        },
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 14
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 2
+        },
+        {
+          "name": "LOSARTAN",
+          "quantity": 16
+        },
+        {
+          "name": "METFORMIN",
+          "quantity": 15
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 15
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "LISINOPRIL",
+          "quantity": 12
+        },
+        {
+          "name": "METFORMIN",
+          "quantity": 14
+        },
+        {
+          "name": "PRAVASTATIN",
+          "quantity": 5
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 19
+        },
+        {
+          "name": "ATENOLOL",
+          "quantity": 14
+        },
+        {
+          "name": "LOVASTATIN",
+          "quantity": 10
+        },
+        {
+          "name": "CLOPIDOGREL",
+          "quantity": 3
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "LEVOTHYROXINE",
+          "quantity": 8
+        },
+        {
+          "name": "AMLODIPINE",
+          "quantity": 2
+        },
+        {
+          "name": "METOPROLOL",
+          "quantity": 11
+        },
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 6
+        },
+        {
+          "name": "ATORVASTATIN",
+          "quantity": 6
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 2
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 13
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "CARVEDILOL",
+          "quantity": 5
+        },
+        {
+          "name": "AMLODIPINE",
+          "quantity": 2
+        },
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 15
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 13
+        },
+        {
+          "name": "PRAVASTATIN",
+          "quantity": 11
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 10
+        },
+        {
+          "name": "CLOPIDOGREL",
+          "quantity": 6
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "AMLODIPINE",
+          "quantity": 2
+        },
+        {
+          "name": "METOPROLOL",
+          "quantity": 9
+        },
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 3
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 13
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 5
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "AMLODIPINE",
+          "quantity": 4
+        },
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 12
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 9
+        },
+        {
+          "name": "METFORMIN",
+          "quantity": 10
+        },
+        {
+          "name": "PRAVASTATIN",
+          "quantity": 11
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 11
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 4
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 2
+        },
+        {
+          "name": "GLIPIZIDE",
+          "quantity": 4
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "LEVOTHYROXINE",
+          "quantity": 2
+        },
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 6
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 2
+        },
+        {
+          "name": "METFORMIN",
+          "quantity": 10
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 7
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "METOPROLOL",
+          "quantity": 9
+        },
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 6
+        },
+        {
+          "name": "ATORVASTATIN",
+          "quantity": 12
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 10
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 15
+        },
+        {
+          "name": "CLOPIDOGREL",
+          "quantity": 6
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "METOPROLOL",
+          "quantity": 13
+        },
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 1
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 7
+        },
+        {
+          "name": "METFORMIN",
+          "quantity": 10
+        },
+        {
+          "name": "FUROSEMIDE",
+          "quantity": 5
+        },
+        {
+          "name": "ASPIRIN",
+          "quantity": 9
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "LEVOTHYROXINE",
+          "quantity": 10
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 7
+        },
+        {
+          "name": "METFORMIN",
+          "quantity": 11
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 5
+        },
+        {
+          "name": "ATENOLOL",
+          "quantity": 14
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "METOPROLOL",
+          "quantity": 4
+        },
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 8
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 10
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 14
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "METOPROLOL",
+          "quantity": 14
+        },
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 6
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 4
+        },
+        {
+          "name": "METFORMIN",
+          "quantity": 11
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 8
+        },
+        {
+          "name": "LOVASTATIN",
+          "quantity": 3
+        },
+        {
+          "name": "GLIPIZIDE",
+          "quantity": 3
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "LISINOPRIL",
+          "quantity": 4
+        },
+        {
+          "name": "METFORMIN",
+          "quantity": 13
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 13
+        },
+        {
+          "name": "GLIPIZIDE",
+          "quantity": 5
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "LEVOTHYROXINE",
+          "quantity": 4
+        },
+        {
+          "name": "AMLODIPINE",
+          "quantity": 6
+        },
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 15
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 3
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 13
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 4
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 14
+        },
+        {
+          "name": "FUROSEMIDE",
+          "quantity": 9
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "AMLODIPINE",
+          "quantity": 6
+        },
+        {
+          "name": "METOPROLOL",
+          "quantity": 13
+        },
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 12
+        },
+        {
+          "name": "ATORVASTATIN",
+          "quantity": 8
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 3
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 10
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "CARVEDILOL",
+          "quantity": 7
+        },
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 1
+        },
+        {
+          "name": "ATORVASTATIN",
+          "quantity": 15
+        },
+        {
+          "name": "CLOPIDOGREL",
+          "quantity": 9
+        },
+        {
+          "name": "ROSUVASTATIN",
+          "quantity": 2
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "METOPROLOL",
+          "quantity": 7
+        },
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 4
+        },
+        {
+          "name": "CLOPIDOGREL",
+          "quantity": 7
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "LEVOTHYROXINE",
+          "quantity": 1
+        },
+        {
+          "name": "OMEPRAZOLE",
+          "quantity": 3
+        },
+        {
+          "name": "ROSUVASTATIN",
+          "quantity": 1
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "METOPROLOL",
+          "quantity": 6
+        },
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 8
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 15
+        },
+        {
+          "name": "METFORMIN",
+          "quantity": 16
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 5
+        },
+        {
+          "name": "WARFARIN",
+          "quantity": 12
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "METOPROLOL",
+          "quantity": 10
+        },
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 1
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 9
+        },
+        {
+          "name": "METFORMIN",
+          "quantity": 13
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 8
+        },
+        {
+          "name": "ATENOLOL",
+          "quantity": 10
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "CARVEDILOL",
+          "quantity": 2
+        },
+        {
+          "name": "ATORVASTATIN",
+          "quantity": 11
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 5
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "LISINOPRIL",
+          "quantity": 9
+        },
+        {
+          "name": "METFORMIN",
+          "quantity": 11
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 8
+        },
+        {
+          "name": "ATENOLOL",
+          "quantity": 8
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "LEVOTHYROXINE",
+          "quantity": 10
+        },
+        {
+          "name": "AMLODIPINE",
+          "quantity": 4
+        },
+        {
+          "name": "OMEPRAZOLE",
+          "quantity": 4
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 6
+        },
+        {
+          "name": "ATENOLOL",
+          "quantity": 12
+        },
+        {
+          "name": "RANITIDINE",
+          "quantity": 5
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "LISINOPRIL",
+          "quantity": 6
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 14
+        },
+        {
+          "name": "LOVASTATIN",
+          "quantity": 3
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 12
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 9
+        },
+        {
+          "name": "METFORMIN",
+          "quantity": 12
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 9
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 12
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 7
+        },
+        {
+          "name": "METFORMIN",
+          "quantity": 15
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 17
+        },
+        {
+          "name": "GLIPIZIDE",
+          "quantity": 7
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "AMLODIPINE",
+          "quantity": 5
+        },
+        {
+          "name": "ATORVASTATIN",
+          "quantity": 13
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 13
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 12
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "METOPROLOL",
+          "quantity": 11
+        },
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 13
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 13
+        },
+        {
+          "name": "METFORMIN",
+          "quantity": 12
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 6
+        },
+        {
+          "name": "ATENOLOL",
+          "quantity": 14
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "ESOMEPRAZOLE",
+          "quantity": 5
+        },
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 1
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 16
+        },
+        {
+          "name": "ALBUTEROL",
+          "quantity": 4
+        },
+        {
+          "name": "PREDNISONE",
+          "quantity": 8
+        },
+        {
+          "name": "VALSARTAN",
+          "quantity": 9
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "LEVOTHYROXINE",
+          "quantity": 6
+        },
+        {
+          "name": "OMEPRAZOLE",
+          "quantity": 5
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 13
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 11
+        },
+        {
+          "name": "CITALOPRAM",
+          "quantity": 2
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "METOPROLOL",
+          "quantity": 12
+        },
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 12
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 8
+        },
+        {
+          "name": "METFORMIN",
+          "quantity": 11
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 13
+        },
+        {
+          "name": "LOVASTATIN",
+          "quantity": 4
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "ATORVASTATIN",
+          "quantity": 14
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 11
+        },
+        {
+          "name": "METFORMIN",
+          "quantity": 15
+        },
+        {
+          "name": "PRAVASTATIN",
+          "quantity": 3
+        },
+        {
+          "name": "GLIPIZIDE",
+          "quantity": 7
+        },
+        {
+          "name": "CLOPIDOGREL",
+          "quantity": 9
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 4
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 2
+        },
+        {
+          "name": "METFORMIN",
+          "quantity": 11
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "OMEPRAZOLE",
+          "quantity": 7
+        },
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 3
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 8
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "METOPROLOL",
+          "quantity": 11
+        },
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 11
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 15
+        },
+        {
+          "name": "METFORMIN",
+          "quantity": 11
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 11
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 3
+        },
+        {
+          "name": "LOSARTAN",
+          "quantity": 11
+        },
+        {
+          "name": "METFORMIN",
+          "quantity": 10
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 13
+        },
+        {
+          "name": "LOVASTATIN",
+          "quantity": 3
+        },
+        {
+          "name": "GLIPIZIDE",
+          "quantity": 6
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "AMLODIPINE",
+          "quantity": 6
+        },
+        {
+          "name": "METOPROLOL",
+          "quantity": 5
+        },
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 11
+        },
+        {
+          "name": "ATORVASTATIN",
+          "quantity": 10
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 5
+        },
+        {
+          "name": "METFORMIN",
+          "quantity": 13
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 10
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 4
+        },
+        {
+          "name": "ATORVASTATIN",
+          "quantity": 12
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 8
+        },
+        {
+          "name": "METFORMIN",
+          "quantity": 13
+        },
+        {
+          "name": "PIOGLITAZONE",
+          "quantity": 6
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 5
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "METOPROLOL",
+          "quantity": 16
+        },
+        {
+          "name": "ATORVASTATIN",
+          "quantity": 4
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 15
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 6
+        },
+        {
+          "name": "CLOPIDOGREL",
+          "quantity": 3
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "LEVOTHYROXINE",
+          "quantity": 3
+        },
+        {
+          "name": "METOPROLOL",
+          "quantity": 15
+        },
+        {
+          "name": "ATORVASTATIN",
+          "quantity": 8
+        },
+        {
+          "name": "CLOPIDOGREL",
+          "quantity": 11
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 12
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 3
+        },
+        {
+          "name": "METFORMIN",
+          "quantity": 14
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 14
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "LEVOTHYROXINE",
+          "quantity": 9
+        },
+        {
+          "name": "ATORVASTATIN",
+          "quantity": 4
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 11
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 14
+        },
+        {
+          "name": "CLOPIDOGREL",
+          "quantity": 3
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "AMLODIPINE",
+          "quantity": 2
+        },
+        {
+          "name": "METOPROLOL",
+          "quantity": 11
+        },
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 10
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 5
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 5
+        },
+        {
+          "name": "CLOPIDOGREL",
+          "quantity": 3
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 12
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 3
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 16
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "METOPROLOL",
+          "quantity": 6
+        },
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 1
+        },
+        {
+          "name": "ATORVASTATIN",
+          "quantity": 3
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 4
+        },
+        {
+          "name": "METFORMIN",
+          "quantity": 11
+        },
+        {
+          "name": "WARFARIN",
+          "quantity": 16
+        },
+        {
+          "name": "GLIPIZIDE",
+          "quantity": 7
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 4
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 3
+        },
+        {
+          "name": "MONTELUKAST",
+          "quantity": 3
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "LISINOPRIL",
+          "quantity": 3
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 11
+        },
+        {
+          "name": "LOVASTATIN",
+          "quantity": 7
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "METOPROLOL",
+          "quantity": 4
+        },
+        {
+          "name": "OMEPRAZOLE",
+          "quantity": 3
+        },
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 14
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 2
+        },
+        {
+          "name": "FUROSEMIDE",
+          "quantity": 17
+        },
+        {
+          "name": "WARFARIN",
+          "quantity": 9
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "LEVOTHYROXINE",
+          "quantity": 11
+        },
+        {
+          "name": "OMEPRAZOLE",
+          "quantity": 5
+        },
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 7
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 15
+        },
+        {
+          "name": "METFORMIN",
+          "quantity": 16
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 2
+        },
+        {
+          "name": "ATORVASTATIN",
+          "quantity": 3
+        },
+        {
+          "name": "METFORMIN",
+          "quantity": 13
+        },
+        {
+          "name": "GLIPIZIDE",
+          "quantity": 7
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 4
+        },
+        {
+          "name": "ATORVASTATIN",
+          "quantity": 9
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 12
+        },
+        {
+          "name": "METFORMIN",
+          "quantity": 12
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 6
+        },
+        {
+          "name": "GLIPIZIDE",
+          "quantity": 6
+        },
+        {
+          "name": "CLOPIDOGREL",
+          "quantity": 11
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "METOPROLOL",
+          "quantity": 17
+        },
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 10
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 4
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 7
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "METOPROLOL",
+          "quantity": 8
+        },
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 1
+        },
+        {
+          "name": "ATORVASTATIN",
+          "quantity": 12
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "CARVEDILOL",
+          "quantity": 3
+        },
+        {
+          "name": "LEVOTHYROXINE",
+          "quantity": 1
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 4
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 13
+        },
+        {
+          "name": "CLOPIDOGREL",
+          "quantity": 6
+        },
+        {
+          "name": "ROSUVASTATIN",
+          "quantity": 4
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "METOPROLOL",
+          "quantity": 16
+        },
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 2
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 4
+        },
+        {
+          "name": "METFORMIN",
+          "quantity": 14
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 18
+        },
+        {
+          "name": "ATENOLOL",
+          "quantity": 14
+        },
+        {
+          "name": "LOVASTATIN",
+          "quantity": 5
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 8
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 2
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 6
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "AMLODIPINE",
+          "quantity": 7
+        },
+        {
+          "name": "METOPROLOL",
+          "quantity": 4
+        },
+        {
+          "name": "OMEPRAZOLE",
+          "quantity": 2
+        },
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 15
+        },
+        {
+          "name": "CLOPIDOGREL",
+          "quantity": 8
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "CARVEDILOL",
+          "quantity": 3
+        },
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 1
+        },
+        {
+          "name": "ATORVASTATIN",
+          "quantity": 8
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 14
+        },
+        {
+          "name": "METFORMIN",
+          "quantity": 16
+        },
+        {
+          "name": "PRAVASTATIN",
+          "quantity": 4
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 15
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 15
+        },
+        {
+          "name": "ATORVASTATIN",
+          "quantity": 7
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 11
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 19
+        },
+        {
+          "name": "ATENOLOL",
+          "quantity": 17
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "AMLODIPINE",
+          "quantity": 4
+        },
+        {
+          "name": "METOPROLOL",
+          "quantity": 17
+        },
+        {
+          "name": "ATORVASTATIN",
+          "quantity": 2
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 12
+        },
+        {
+          "name": "FUROSEMIDE",
+          "quantity": 12
+        },
+        {
+          "name": "GLIPIZIDE",
+          "quantity": 2
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 1
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 10
+        },
+        {
+          "name": "METFORMIN",
+          "quantity": 12
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "TAMSULOSIN",
+          "quantity": 2
+        },
+        {
+          "name": "ATORVASTATIN",
+          "quantity": 4
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 14
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 9
+        },
+        {
+          "name": "ATENOLOL",
+          "quantity": 18
+        },
+        {
+          "name": "ROSUVASTATIN",
+          "quantity": 4
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 13
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 15
+        },
+        {
+          "name": "CLOPIDOGREL",
+          "quantity": 4
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "METOPROLOL",
+          "quantity": 11
+        },
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 13
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 11
+        },
+        {
+          "name": "FUROSEMIDE",
+          "quantity": 13
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 18
+        },
+        {
+          "name": "CLOPIDOGREL",
+          "quantity": 9
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "AMLODIPINE",
+          "quantity": 7
+        },
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 15
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 3
+        },
+        {
+          "name": "LOSARTAN",
+          "quantity": 17
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 8
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "LEVOTHYROXINE",
+          "quantity": 7
+        },
+        {
+          "name": "METOPROLOL",
+          "quantity": 6
+        },
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 12
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 8
+        },
+        {
+          "name": "METFORMIN",
+          "quantity": 16
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 13
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 15
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 17
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "METOPROLOL",
+          "quantity": 4
+        },
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 5
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 9
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "METOPROLOL",
+          "quantity": 7
+        },
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 4
+        },
+        {
+          "name": "TAMSULOSIN",
+          "quantity": 3
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 2
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 13
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "METOPROLOL",
+          "quantity": 6
+        },
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 12
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 3
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 15
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "LISINOPRIL",
+          "quantity": 6
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 12
+        },
+        {
+          "name": "CLOPIDOGREL",
+          "quantity": 4
+        },
+        {
+          "name": "ROSUVASTATIN",
+          "quantity": 1
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 13
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 15
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 13
+        },
+        {
+          "name": "ZOLPIDEM",
+          "quantity": 3
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 9
+        },
+        {
+          "name": "ALENDRONATE",
+          "quantity": 6
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 2
+        },
+        {
+          "name": "METFORMIN",
+          "quantity": 16
+        },
+        {
+          "name": "ASPIRIN",
+          "quantity": 13
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "LEVOTHYROXINE",
+          "quantity": 10
+        },
+        {
+          "name": "METOPROLOL",
+          "quantity": 14
+        },
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 3
+        },
+        {
+          "name": "ALENDRONATE",
+          "quantity": 4
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 8
+        },
+        {
+          "name": "FUROSEMIDE",
+          "quantity": 16
+        },
+        {
+          "name": "CLOPIDOGREL",
+          "quantity": 5
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 7
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 13
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 9
+        },
+        {
+          "name": "WARFARIN",
+          "quantity": 3
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "LEVOTHYROXINE",
+          "quantity": 4
+        },
+        {
+          "name": "METOPROLOL",
+          "quantity": 8
+        },
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 9
+        },
+        {
+          "name": "ATORVASTATIN",
+          "quantity": 11
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 5
+        },
+        {
+          "name": "PRAVASTATIN",
+          "quantity": 3
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 16
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "name": "LEVOTHYROXINE",
+          "quantity": 5
+        },
+        {
+          "name": "AMLODIPINE",
+          "quantity": 4
+        },
+        {
+          "name": "SIMVASTATIN",
+          "quantity": 13
+        },
+        {
+          "name": "LISINOPRIL",
+          "quantity": 11
+        },
+        {
+          "name": "SERTRALINE",
+          "quantity": 16
+        },
+        {
+          "name": "HYDROCHLOROTHIAZIDE",
+          "quantity": 14
+        },
+        {
+          "name": "FEXOFENADINE",
+          "quantity": 16
+        }
+      ]
+    }
+  ]
+}
