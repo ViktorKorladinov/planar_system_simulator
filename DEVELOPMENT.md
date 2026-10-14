@@ -75,7 +75,11 @@ Paths below are relative to `backend/` unless stated otherwise.
 - `export_experiment_results.py`: exports finished experiments of a batch to CSV via the API.
 - `audit_routing_paths.py`: post-hoc check of final mover paths (transit capacity, same-tile dispensing).
 - `summarize_overhead_matrix.py`: builds the routing tables (`routing_cmax_effect_*.tex`,
-  `warmup_comparison.tex`) and in-text numbers from the overhead CSV, with reruns replacing originals.
+  `warmup_comparison.tex`) and in-text numbers from the overhead CSV, with reruns replacing originals
+  (`--reruns`) and recomputed R_D/T (`--ratios`).
+- `recompute_post_hoc_metrics.py`: recomputes schedule-independent metrics of finished runs with the local
+  code (R_D/T; with `--lower-bound` also `lower_bound_cmax`). Reads inputs from the API, e.g. through
+  `ssh -f -N -L 18008:localhost:8008 vortex-ext` and `--api-url http://localhost:18008`.
 - Result CSVs of the paper batches: `data/plots/*_results.csv`. Other paper figures (time limit, batch size,
   robustness, mover-count plots, LB table) read CSVs in `../../xplanar/experiments/`, not from micka scripts.
 
