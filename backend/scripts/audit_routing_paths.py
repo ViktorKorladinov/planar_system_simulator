@@ -6,10 +6,10 @@ Checks two routing rules on the final mover paths stored for each experiment:
 - Transit capacity: at most --capacity movers may transit the same tile at the same time step.
 - Tile exclusivity: no two movers may be loading on the same tile at the same time step.
 
-Each path starts with a block of loading steps in which the mover waits at its first dispenser before
-its first operation and then performs it; this block cannot be split using paths alone. Loading
-overlaps are therefore reported separately for steps after each mover's initial block (unambiguous)
-and for steps involving an initial block.
+In runs made before the initial wait was marked as idle (`e`), each path starts with a block of loading
+steps in which the mover waits at its first dispenser before its first operation and then performs it;
+this block cannot be split using paths alone. Loading overlaps are therefore reported separately for steps
+after each mover's initial block (unambiguous) and for steps involving an initial block.
 
 Usage:
     python audit_routing_paths.py --batch-id 4

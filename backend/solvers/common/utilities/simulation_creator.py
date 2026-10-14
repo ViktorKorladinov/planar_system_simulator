@@ -33,10 +33,10 @@ def create_simulation(
     """
     routing_start = time.perf_counter()
 
-    # Pre-routing scheduled makespan
-    scheduled_cmax = 0
+    # Makespan of the schedule as returned by the solver (merged batches include fixed offsets)
+    cp_cmax = 0
     if len(schedule) > 0 and 'Finish' in schedule.columns:
-        scheduled_cmax = int(schedule['Finish'].max())
+        cp_cmax = int(schedule['Finish'].max())
 
     # Extend schedule to allow for path creation
     path_optimizer = PathOptimizer(data.row_amount, data.column_amount, data.filled, data.unavailable_coordinates)
@@ -46,6 +46,9 @@ def create_simulation(
     # Run extender without interruptions, to make sure the schedule is optimally compressed
     interruptions = [0 for _ in range(len(schedule_temp))]
     schedule_temp, _ = extender.optimize(interruptions, compress=True)
+
+    # Pre-routing scheduled makespan: compressed schedule, before any routing delays
+    scheduled_cmax = int(schedule_temp['Finish'].max()) if len(schedule_temp) > 0 else 0
 
     # Create path and account for interruptions
     schedule_has_changed = True
@@ -107,7 +110,6 @@ def create_simulation(
 
     # Operational metrics calculated from mover_paths
     total_transit = 0
-    total_loading = 0
     total_wait = 0
     mover_busy_times: Dict[str, int] = {}
 
@@ -124,17 +126,21 @@ def create_simulation(
             elif step.mode == MoverMode.WAIT_REST:
                 mover_wait += 1
         total_transit += mover_transit
-        total_loading += mover_loading
         total_wait += mover_wait
         mover_busy_times[mover_key] = mover_transit + mover_loading
 
-    dispensing_to_travel = round(total_loading / total_transit, 4) if total_transit > 0 else 0.0
+    # Nominal drug-dispensing time: excludes interface operations and pause ticks added by routing
+    dispensing_tasks = finished_schedule[finished_schedule['Medicine'] != 'interface']
+    total_dispensing = int((dispensing_tasks['Length'] - dispensing_tasks['TicksAdded']).sum())
+
+    dispensing_to_travel = round(total_dispensing / total_transit, 4) if total_transit > 0 else 0.0
 
     # Build Result
     result_kwargs: Dict[str, Any] = {
         "mover_paths": mover_paths,
         "max_path": routed_cmax,
         "color_dict": color_dict,
+        "cp_cmax": cp_cmax,
         "scheduled_cmax": scheduled_cmax,
         "routed_cmax": routed_cmax,
         "routing_overhead_abs": routing_overhead_abs,
@@ -146,7 +152,7 @@ def create_simulation(
         "final_interruptions": final_interruptions,
         "iterations_interruption_history": iterations_interruption_history,
         "total_transit_time": total_transit,
-        "total_dispensing_time": total_loading,
+        "total_dispensing_time": total_dispensing,
         "total_wait_time": total_wait,
         "dispensing_to_travel_ratio": dispensing_to_travel,
         "mover_busy_time_per_mover": mover_busy_times,

@@ -1,3 +1,5 @@
+import math
+
 import gurobipy as g
 import numpy as np
 import pandas as pd
@@ -125,8 +127,9 @@ def patient_tsp_lb(drug_list, dosage_list, layout: CplexLayout, interface_time, 
     for site in num_sites.keys():
         look_for_site = site if not site.startswith("interface") else site[:-2]
         sites_coordinates[site] = []
-        for i in range(len(placement)):
-            locs = [(i, j) for j in range(len(placement[i])) if look_for_site in placement[i][j].split(",")]
+        # Placement is indexed [row][column]; PathOptimizer expects (x, y) = (column, row)
+        for y in range(len(placement)):
+            locs = [(x, y) for x in range(len(placement[y])) if look_for_site in placement[y][x].split(",")]
             sites_coordinates[site] += locs
 
         for id in range(len(sites_coordinates[site])):
@@ -144,7 +147,11 @@ def patient_tsp_lb(drug_list, dosage_list, layout: CplexLayout, interface_time, 
             loc_a = sites_coordinates[site_a][id_a]
             site_b, id_b = vertex_id_to_site_id[db]
             loc_b = sites_coordinates[site_b][id_b]
-            orig_distances[da, db] = len(path_optimizer.find_shortest_path(loc_a, loc_b))
+            path = path_optimizer.find_shortest_path(loc_a, loc_b)
+            if not path:
+                raise ValueError(f"No path between {loc_a} and {loc_b} in the layout.")
+            # Travel time is the number of moves, i.e. path length without the start tile
+            orig_distances[da, db] = len(path) - 1
 
     bigM = np.sum(orig_distances[:, :])
     gtsp_distances = total_sites * bigM * np.ones(shape=(total_sites, total_sites))  # + bigM*np.eye(total_sites)
@@ -226,8 +233,8 @@ def get_patient_lbs(n_patients, patient_list, dosage_list, interface_time, dosag
     return lbs
 
 
-def warm_up(n_patients, layout: CplexLayout, dosage_ratio, patient_list, dosage_list, path_optimizer):
-    interface_time = 3
+def warm_up(n_patients, layout: CplexLayout, dosage_ratio, interface_time, patient_list, dosage_list,
+            path_optimizer):
     patient_time = get_patient_lbs(n_patients, patient_list, dosage_list, interface_time, dosage_ratio, layout,
                                    path_optimizer)
     return patient_time
@@ -249,6 +256,21 @@ def optimize(n_movers, n_patients, patient_time):
     return m, x
 
 
+def get_lower_bound(model) -> int:
+    """Returns a valid makespan lower bound from the solved P||Cmax model.
+
+    The incumbent is only a lower bound if the solver proved optimality within its time limit, so the proven
+    objective bound is used instead. Patient times are integral, hence the bound can be rounded up.
+
+    Args:
+        model: Solved Gurobi P||Cmax model.
+
+    Returns:
+        Lower bound on the makespan.
+    """
+    return math.ceil(model.ObjBound - 1e-6)
+
+
 def parse_results(n_movers, n_patients, patient_time, x):
     activity_list = []
     for i in range(n_movers):
@@ -266,8 +288,8 @@ def parse_results(n_movers, n_patients, patient_time, x):
 
 def get_patient_arrangement(path_optimizer: PathOptimizer, data: CplexExperimentModel):
     patient_list, dosage_list = load_real_patients(data)
-    patient_time = warm_up(len(data.orders), data.layout, data.dispensing_time, patient_list, dosage_list,
-                           path_optimizer)
+    patient_time = warm_up(len(data.orders), data.layout, data.dispensing_time, data.interface_time, patient_list,
+                           dosage_list, path_optimizer)
     model, x = optimize(data.mover_amount, len(data.orders), patient_time)
     df = parse_results(data.mover_amount, len(data.orders), patient_time, x)
     return model, df, x

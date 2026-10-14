@@ -102,11 +102,11 @@ def generate_mover_paths(df_arr: List[pd.DataFrame], path_optimizer: PathOptimiz
 
             # Skip first task
             if prev is None:
-                # Respect initial wait before introduction to the grid
+                # Respect initial wait before introduction to the grid (idle, not loading)
                 mover_path.extend(convert_to_mover_steps(
                     [target_pos for _ in range(int(task['Start']))],
                     order_name,
-                    MoverMode.LOADING
+                    MoverMode.EXTENSION
                 ))
 
                 # Prep mover for his first patient

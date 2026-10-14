@@ -30,10 +30,14 @@ class LargeScheduleCreator:
         solve_statuses = []
         gaps = []
         warm_cmaxes = []
+        lower_bounds = []
 
         for batch_res in schedules_arr:
             if batch_res.warmup_cmax is not None:
                 warm_cmaxes.append(batch_res.warmup_cmax)
+            # A lower bound of any batch is also a lower bound of the whole order set
+            if batch_res.lower_bound is not None:
+                lower_bounds.append(batch_res.lower_bound)
             m = batch_res.metrics
             if m:
                 if m.get("solve_time") is not None:
@@ -60,6 +64,7 @@ class LargeScheduleCreator:
             "internal_gap_pct": round(sum(gaps) / len(gaps), 4) if gaps else None,
             "cp_solve_status": ", ".join(set(solve_statuses)) if solve_statuses else None,
             "warm_start_cmax": max(warm_cmaxes) if warm_cmaxes else None,
+            "lower_bound_cmax": max(lower_bounds) if lower_bounds else None,
             "batch_count": len(schedules_arr),
         }
 

@@ -221,3 +221,4 @@ class BatchResult(NamedTuple):
     metadata: dict
     warmup_cmax: Optional[float]
     metrics: Optional[dict] = None
+    lower_bound: Optional[int] = None
