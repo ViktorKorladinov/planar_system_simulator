@@ -250,6 +250,7 @@ def test_map_experiment_to_cplex_experiment() -> None:
         "batch_size": experiment.configuration.batch_size,
         "process_amount": experiment.configuration.process_amount,
         "warmup": experiment.configuration.warmup,
+        "random_seed": experiment.configuration.random_seed,
         "interface_time": experiment.configuration.interface_time
     }
 

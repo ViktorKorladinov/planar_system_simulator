@@ -113,8 +113,10 @@ def flatten_experiment(exp: Dict[str, Any]) -> Dict[str, Any]:
         "interface_time": exp.get("interface_time"),
         "batch_size": exp.get("batch_size"),
         "warmup": exp.get("warmup"),
+        "random_seed": exp.get("random_seed"),
         "time_limit": exp.get("time_limit"),
         "order_amount": exp.get("order_amount"),
+        "order_list_name": exp.get("order_list_name"),
 
         # Scheduled vs Routed C_max & Overheads
         "cp_cmax": m.get("cp_cmax"),
@@ -143,6 +145,7 @@ def flatten_experiment(exp: Dict[str, Any]) -> Dict[str, Any]:
         "solver_choice_points": m.get("solver_choice_points"),
         "warm_start_cmax": m.get("warm_start_cmax"),
         "lower_bound_cmax": m.get("lower_bound_cmax"),
+        "cp_progress": json.dumps(m["cp_progress"]) if m.get("cp_progress") is not None else "",
 
         # Operational & Workload Metrics
         "total_transit_time": m.get("total_transit_time"),

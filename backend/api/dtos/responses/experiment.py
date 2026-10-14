@@ -188,6 +188,10 @@ class ExperimentSummaryResponseDTO(BaseModel):
         default=None,
         description="True if warmup should be used for experiment."
     )
+    random_seed: Optional[int] = Field(
+        default=None,
+        description="Random seed of the CP solver (solver default if not set)."
+    )
     process_amount: int = Field(
         ...,
         description="Amount of processes used for the experiment."

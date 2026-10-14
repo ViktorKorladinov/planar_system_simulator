@@ -3,6 +3,7 @@ import os
 import sys
 import time
 
+import gurobipy as gp
 import requests
 from billiard.exceptions import Terminated
 from celery import shared_task
@@ -72,6 +73,9 @@ def run_solver(experiment_id: int):
     Args:
         experiment_id: ID of the experiment which should be solved.
     """
+    # Limit threads of all Gurobi models created in this process (applies to the default environment)
+    gp.setParam("Threads", settings.GUROBI_THREADS)
+
     uow = get_uow()
     with uow:
         experiment = uow.experiment_repo.find_by_id(experiment_id)

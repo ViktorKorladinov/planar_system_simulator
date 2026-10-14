@@ -147,6 +147,7 @@ def map_experiment_to_cplex_experiment(domain_model: ExperimentDomainModel) -> C
         batch_size=domain_model.configuration.batch_size,
         process_amount=domain_model.configuration.process_amount,
         warmup=domain_model.configuration.warmup,
+        random_seed=domain_model.configuration.random_seed,
         interface_time=domain_model.configuration.interface_time,
         layout=map_layout_domain_to_cplex(domain_model.layout)
     )

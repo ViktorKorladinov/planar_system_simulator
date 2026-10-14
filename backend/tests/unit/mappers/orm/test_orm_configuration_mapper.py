@@ -24,6 +24,7 @@ def test_map_configuration_orm_to_domain(configuration_orm_model: ConfigurationO
         "batch_size": configuration_orm_model.batch_size,
         "process_amount": configuration_orm_model.process_amount,
         "warmup": configuration_orm_model.warmup,
+        "random_seed": configuration_orm_model.random_seed,
         "dispense_rate": configuration_orm_model.dispense_rate,
         "viscosity_exponent": configuration_orm_model.viscosity_exponent,
         "mover_speed": configuration_orm_model.mover_speed,
@@ -49,6 +50,7 @@ def test_map_configuration_domain_to_orm(configuration_domain_model: Configurati
     assert orm_model.time_limit == configuration_domain_model.time_limit
     assert orm_model.process_amount == configuration_domain_model.process_amount
     assert orm_model.warmup == configuration_domain_model.warmup
+    assert orm_model.random_seed == configuration_domain_model.random_seed
     assert orm_model.batch_size == configuration_domain_model.batch_size
     assert orm_model.dispense_rate == configuration_domain_model.dispense_rate
     assert orm_model.viscosity_exponent == configuration_domain_model.viscosity_exponent

@@ -47,6 +47,10 @@ class Settings(BaseSettings):
 
     # --- Solvers ---
     MAX_PROCESS_AMOUNT: int = 8
+    # Threads used by every Gurobi model (lower bound, routing); keeps parallel runs from oversubscribing the host.
+    GUROBI_THREADS: int = 1
+    # Time limit of the P||Cmax lower-bound model in seconds.
+    LOWER_BOUND_TIME_LIMIT: int = 60
 
     # --- CPLEX ---
     CPLEX_PATH: str = "C:\\Program Files\\IBM\\ILOG\\CPLEX_Studio2212\\cpoptimizer\\bin\\x64_win64\\cpoptimizer.exe"

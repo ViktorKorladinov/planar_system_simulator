@@ -65,6 +65,7 @@ class LargeScheduleCreator:
             "cp_solve_status": ", ".join(set(solve_statuses)) if solve_statuses else None,
             "warm_start_cmax": max(warm_cmaxes) if warm_cmaxes else None,
             "lower_bound_cmax": max(lower_bounds) if lower_bounds else None,
+            "cp_progress": [(batch_res.metrics or {}).get("progress", []) for batch_res in schedules_arr],
             "batch_count": len(schedules_arr),
         }
 
