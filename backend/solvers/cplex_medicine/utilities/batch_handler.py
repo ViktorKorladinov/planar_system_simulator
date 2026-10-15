@@ -31,8 +31,10 @@ class ProgressListener(CpoSolverListener):
 
 
 class ScheduleCreator:
-    def __init__(self, data) -> None:
+    def __init__(self, data, compute_lower_bound: bool = True) -> None:
         self.data = data
+        # The lower bound needs Gurobi; scheduling-only experiments can skip it when no warm start is used
+        self.compute_lower_bound = compute_lower_bound
 
         # Load data
         self.drug_names = []
@@ -412,8 +414,11 @@ class ScheduleCreator:
     def apply_warmup(self, m, task_wraps, m_range, p_range, path_optimizer: PathOptimizer):
         """
             Compute the makespan lower bound and apply the warmup solution if requested.
-            Returns the warm-start makespan (None without warmup) and the makespan lower bound.
+            Returns the warm-start makespan (None without warmup) and the makespan lower bound
+            (None if neither warmup nor the lower bound is requested).
         """
+        if not self.data.warmup and not self.compute_lower_bound:
+            return None, None
         g_model, warm_df, warm_x = get_patient_arrangement(
             path_optimizer=PathOptimizer(self.rows, self.cols, self.filled, self.unavailable_coords),
             data=self.data,
