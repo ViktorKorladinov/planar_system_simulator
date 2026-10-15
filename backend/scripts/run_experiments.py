@@ -352,6 +352,19 @@ def build_configurations(mode: str, time_limit: int) -> List[Dict[str, Any]]:
                 "process_amount": 1,
                 "warmup": True
             })
+    elif mode == "robustness":
+        for mover_count in [8, 12]:
+            configs.append({
+                "name": f"Robustness_M{mover_count}_std_warm",
+                "solver_type": "cplex_medicine",
+                "mover_amount": mover_count,
+                "dispensing_time": 10,
+                "interface_time": 3,
+                "time_limit": time_limit,
+                "batch_size": 100,
+                "process_amount": 1,
+                "warmup": True
+            })
     elif mode == "all":
         configs.extend(build_configurations("overhead", time_limit))
         configs.extend(build_configurations("batching", time_limit))
@@ -391,7 +404,7 @@ def monitor_batch(api_url: str, batch_id: int, poll_interval: int = 10) -> None:
 
 def main():
     parser = argparse.ArgumentParser(description="Run experiment matrix for Planar System Simulator.")
-    parser.add_argument("--mode", choices=["quick-test", "overhead", "scalability", "batching", "lowerbound", "all"],
+    parser.add_argument("--mode", choices=["quick-test", "overhead", "scalability", "batching", "lowerbound", "robustness", "all"],
                         default="quick-test", help="Study to run (default: quick-test)")
     parser.add_argument("--topology", default="square",
                         help="Topology to evaluate: 'square', 'doubleline', 'line', 'ring', or 'all' (default: square)")

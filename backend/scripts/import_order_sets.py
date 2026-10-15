@@ -10,6 +10,10 @@ in file order (set k = orders (k-1)*size .. k*size-1).
 Usage:
     python import_order_sets.py ../../diplomka/src/data_generator/generated_capsules_with_dosages.csv \
         --set-size 100 --num-sets 5 --output-dir data/order_sets
+    python import_order_sets.py data/order_pool/generated_orders_seed2026.csv \
+        --set-size 500 --num-sets 3 --prefix large_set --output-dir data/order_sets
+    python import_order_sets.py data/order_pool/generated_orders_seed2026.csv \
+        --offset 1500 --set-size 100 --num-sets 99 --prefix robust_val_ --digits 2 --output-dir data/order_sets
 """
 
 import argparse
@@ -45,17 +49,21 @@ def main():
     parser.add_argument("input", help="Generator output file")
     parser.add_argument("--set-size", type=int, default=100, help="Orders per set (default: 100)")
     parser.add_argument("--num-sets", type=int, required=True, help="Number of sets to create")
+    parser.add_argument("--offset", type=int, default=0, help="Index of the first order used (default: 0)")
+    parser.add_argument("--prefix", default="orders_set", help="Set name prefix (default: orders_set)")
+    parser.add_argument("--digits", type=int, default=0, help="Zero-pad set numbers to this many digits")
     parser.add_argument("--output-dir", required=True, help="Directory for the JSON files")
     args = parser.parse_args()
 
     all_orders = load_generated_orders(args.input)
+    all_orders = all_orders[args.offset:]
     if args.set_size * args.num_sets > len(all_orders):
         raise ValueError(f"{args.input} has only {len(all_orders)} orders")
 
     os.makedirs(args.output_dir, exist_ok=True)
     for index in range(1, args.num_sets + 1):
         orders = all_orders[(index - 1) * args.set_size:index * args.set_size]
-        name = f"orders_set{index}"
+        name = f"{args.prefix}{index:0{args.digits}d}" if args.digits else f"{args.prefix}{index}"
         payload = {
             "name": name,
             "type": "medicine",
