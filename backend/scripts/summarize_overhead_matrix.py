@@ -77,6 +77,10 @@ def load_runs(base_path: str, reruns_paths: Optional[List[str]] = None,
             "overhead_pct": float(row["routing_overhead_pct"]),
             "iterations": int(row["routing_iterations"]),
             "r_dt": float(row["dispensing_to_travel_ratio"]),
+            "lower_bound": float(row["lower_bound_cmax"]) if row.get("lower_bound_cmax") else None,
+            "cp_bound": float(row["best_bound_internal"]) if row.get("best_bound_internal") else None,
+            "order_set": row.get("order_list_name"),
+            "seed": row.get("random_seed"),
         })
     return result
 
@@ -94,25 +98,40 @@ def mean_sd(values: List[float]) -> str:
     return f"${thousands(statistics.mean(values))} \\pm {thousands(statistics.stdev(values))}$"
 
 
-def main_table(runs: List[Dict[str, Any]], speed: int, speed_name: str) -> str:
+def main_table(runs: List[Dict[str, Any]], speed: int, speed_name: str, split_init: bool = False) -> str:
     rows = []
+    groups = [(None, "")] if not split_init else [(False, "Cold & "), (True, "Warm & ")]
     for movers in MOVER_COUNTS:
-        cell = select(runs, speed=speed, movers=movers)
-        rows.append(
-            f"            {movers} & {mean_sd([r['scheduled'] for r in cell])} & "
-            f"{mean_sd([r['routed'] for r in cell])} & "
-            f"{statistics.mean(r['overhead_pct'] for r in cell):.2f} & "
-            f"{max(r['overhead_pct'] for r in cell):.2f} & "
-            f"{statistics.mean(r['r_dt'] for r in cell):.2f} \\\\")
-    n = len(select(runs, speed=speed, movers=MOVER_COUNTS[0]))
+        for warmup, init_label in groups:
+            criteria = {"speed": speed, "movers": movers}
+            if warmup is not None:
+                criteria["warmup"] = warmup
+            cell = select(runs, **criteria)
+            mover_label = str(movers) if warmup in (None, False) else ""
+            rows.append(
+                f"            {mover_label} & {init_label}{mean_sd([r['scheduled'] for r in cell])} & "
+                f"{mean_sd([r['routed'] for r in cell])} & "
+                f"{statistics.mean(r['overhead_pct'] for r in cell):.2f} & "
+                f"{max(r['overhead_pct'] for r in cell):.2f} & "
+                f"{statistics.mean(r['r_dt'] for r in cell):.2f} \\\\")
+        if split_init and movers != MOVER_COUNTS[-1]:
+            rows.append("            \\midrule")
+    first = {"speed": speed, "movers": MOVER_COUNTS[0], **({"warmup": False} if split_init else {})}
+    n = len(select(runs, **first))
     label = "d10" if speed == 10 else "d1"
+    init_header = "\\shortstack{Scheduler\\\\start} & " if split_init else ""
+    init_caption = ("for cold and warm scheduler starts separately. Each row summarizes "
+                    f"$n={n}$ runs across four topologies and five generated order sets."
+                    if split_init else
+                    f"Each cell summarizes $n={n}$ runs across four topologies, five generated order sets, and two "
+                    "scheduler-initialization configurations.")
     return "\n".join([
         "\\begin{table}[ht]",
         "    \\centering",
         "    \\resizebox{\\textwidth}{!}{%",
-        "        \\begin{tabular}{c|c|c|c|c|c}",
+        f"        \\begin{{tabular}}{{c|{'c|' if split_init else ''}c|c|c|c|c}}",
         "            \\toprule",
-        "            \\shortstack{Mover\\\\count} & \\shortstack{Scheduled $C_{\\max}$\\\\mean $\\pm$ SD} & "
+        f"            \\shortstack{{Mover\\\\count}} & {init_header}\\shortstack{{Scheduled $C_{{\\max}}$\\\\mean $\\pm$ SD}} & "
         "\\shortstack{Routed $C_{\\max}$\\\\mean $\\pm$ SD} & \\shortstack{Mean routing\\\\overhead [\\%]} & "
         "\\shortstack{Maximum\\\\overhead [\\%]} & \\shortstack{Mean $R_{D/T}$} \\\\",
         "            \\midrule",
@@ -120,9 +139,9 @@ def main_table(runs: List[Dict[str, Any]], speed: int, speed_name: str) -> str:
         "            \\bottomrule",
         "        \\end{tabular}",
         "    }",
-        f"    \\caption{{Scheduling and routing makespans at {speed_name} dispensing speed. Each cell summarizes "
-        f"$n={n}$ runs across four topologies, five generated order sets, and two scheduler-initialization "
-        "configurations. $R_{D/T}$ is the ratio of total dispensing to total transit time.}",
+        f"    \\caption{{Scheduling and routing makespans at {speed_name} dispensing speed"
+        f"{', ' if split_init else '. '}{init_caption} $R_{{D/T}}$ is the ratio of total drug-dispensing time "
+        "to total transit time.}",
         f"    \\label{{table:expRouting:cmax_{label}}}",
         "\\end{table}",
         "",
@@ -205,6 +224,99 @@ def warmup_table(runs: List[Dict[str, Any]]) -> str:
     ])
 
 
+def lower_bound_table(runs: List[Dict[str, Any]]) -> str:
+    """Lower bound (SHPPN + P||Cmax) and CP Optimizer's internal bound versus the scheduled makespan."""
+    rows = []
+    for speed, speed_name in SPEEDS:
+        for movers in MOVER_COUNTS:
+            cell = select(runs, speed=speed, movers=movers)
+            lb = [r["lower_bound"] for r in cell]
+            cp = [r["cp_bound"] if r["cp_bound"] is not None else 0.0 for r in cell]
+            sched = [r["scheduled"] for r in cell]
+            gap_lb = [(r["scheduled"] - r["lower_bound"]) / r["scheduled"] * 100 for r in cell]
+            gap_cp = [(r["scheduled"] - (r["cp_bound"] or 0.0)) / r["scheduled"] * 100 for r in cell]
+            speed_label = f"\\multirow{{{len(MOVER_COUNTS)}}}{{*}}{{{speed_name.capitalize()}}}" \
+                if movers == MOVER_COUNTS[0] else ""
+            rows.append(
+                f"            {speed_label} & {movers} & {thousands(statistics.mean(lb))} & "
+                f"{thousands(statistics.mean(cp))} & {thousands(statistics.mean(sched))} & "
+                f"{statistics.mean(gap_lb):.2f} ({min(gap_lb):.2f}--{max(gap_lb):.2f}) & "
+                f"{statistics.mean(gap_cp):.2f} \\\\")
+        if speed != SPEEDS[-1][0]:
+            rows.append("            \\midrule")
+    n = len(select(runs, speed=SPEEDS[0][0], movers=MOVER_COUNTS[0]))
+    return "\n".join([
+        "\\begin{table}[htbp]",
+        "    \\centering",
+        "    \\resizebox{\\textwidth}{!}{%",
+        "        \\begin{tabular}{c|c|ccc|cc}",
+        "            \\toprule",
+        "            \\multirow{2}{*}{\\shortstack{Dispensing\\\\speed}} & \\multirow{2}{*}{\\shortstack{Mover\\\\count}} & "
+        "\\multicolumn{3}{c|}{Mean value} & \\multicolumn{2}{c}{Gap of scheduled $C_{\\max}$ to bound [\\%]} \\\\",
+        "            \\cmidrule(lr){3-5}\\cmidrule(lr){6-7}",
+        "             & & SHPPN LB & CP bound & Scheduled $C_{\\max}$ & SHPPN LB, mean (min--max) & CP bound, mean \\\\",
+        "            \\midrule",
+        *rows,
+        "            \\bottomrule",
+        "        \\end{tabular}",
+        "    }",
+        f"    \\caption{{Lower bounds versus scheduled makespan. SHPPN LB is the bound of Section~\\ref{{sec:lowerbound}}; "
+        f"CP bound is the objective bound reported by CP Optimizer at its time limit. Each row summarizes $n={n}$ runs "
+        "with 100 orders across four topologies, five generated order sets, and two scheduler-initialization "
+        "configurations. Gaps are $(C_{\\max} - \\text{bound}) / C_{\\max}$.}",
+        "    \\label{table:expFour:compar_wide}",
+        "\\end{table}",
+        "",
+    ])
+
+
+def variation_table(set_runs: List[Dict[str, Any]], seed_runs: List[Dict[str, Any]], seed_set: str) -> str:
+    """Coefficient of variation of the makespans across order sets versus across CP random seeds."""
+    def mean_cv(runs: List[Dict[str, Any]], speed: int, movers: int, field: str) -> float:
+        groups: Dict[tuple, List[float]] = {}
+        for r in select(runs, speed=speed, movers=movers):
+            groups.setdefault((r["layout"], r["warmup"]), []).append(r[field])
+        return statistics.mean(statistics.stdev(v) / statistics.mean(v) * 100 for v in groups.values())
+
+    seed_group = [r for r in seed_runs if r["order_set"] == seed_set]
+    set_group = [r for r in set_runs if r["seed"] in (None, "", "1")]
+    rows = []
+    for speed, speed_name in SPEEDS:
+        for movers in MOVER_COUNTS:
+            speed_label = f"\\multirow{{{len(MOVER_COUNTS)}}}{{*}}{{{speed_name.capitalize()}}}" \
+                if movers == MOVER_COUNTS[0] else ""
+            rows.append(
+                f"            {speed_label} & {movers} & "
+                f"{mean_cv(seed_group, speed, movers, 'scheduled'):.2f} & {mean_cv(seed_group, speed, movers, 'routed'):.2f} & "
+                f"{mean_cv(set_group, speed, movers, 'scheduled'):.2f} & {mean_cv(set_group, speed, movers, 'routed'):.2f} \\\\")
+        if speed != SPEEDS[-1][0]:
+            rows.append("            \\midrule")
+    n_seeds = len({r["seed"] for r in seed_group})
+    n_sets = len({r["order_set"] for r in set_group})
+    return "\n".join([
+        "\\begin{table}[htbp]",
+        "    \\centering",
+        "        \\begin{tabular}{c|c|cc|cc}",
+        "            \\toprule",
+        "            \\multirow{2}{*}{\\shortstack{Dispensing\\\\speed}} & \\multirow{2}{*}{\\shortstack{Mover\\\\count}} & "
+        f"\\multicolumn{{2}}{{c|}}{{{n_seeds} solver seeds, one order set}} & "
+        f"\\multicolumn{{2}}{{c}}{{{n_sets} order sets, one seed}} \\\\",
+        "            \\cmidrule(lr){3-4}\\cmidrule(lr){5-6}",
+        "             & & Scheduled & Routed & Scheduled & Routed \\\\",
+        "            \\midrule",
+        *rows,
+        "            \\bottomrule",
+        "        \\end{tabular}",
+        "    \\caption{Variation of the makespan caused by the solver versus by the instance: mean coefficient of "
+        "variation [\\%] of the scheduled and routed $C_{\\max}$ over CP Optimizer random seeds on a fixed order set, "
+        "and over independently generated order sets with a fixed seed. Means are taken over the four topologies "
+        "and the two scheduler-initialization configurations.}",
+        "    \\label{table:expRouting:variation}",
+        "\\end{table}",
+        "",
+    ])
+
+
 def print_summary(runs: List[Dict[str, Any]]) -> None:
     overheads = [r["overhead_pct"] for r in runs]
     iterations = [r["iterations"] for r in runs]
@@ -226,6 +338,12 @@ def main():
     parser.add_argument("--ratios", nargs="*", default=None,
                         help="Optional CSV(s) from recompute_post_hoc_metrics.py overriding R_D/T for every run")
     parser.add_argument("--output-dir", default=None, help="Directory to write the LaTeX tables to")
+    parser.add_argument("--split-init", action="store_true",
+                        help="Report cold and warm scheduler starts in separate rows of the main tables")
+    parser.add_argument("--lower-bound", action="store_true", help="Also write lower_bound_comparison.tex")
+    parser.add_argument("--seed-runs", nargs="*", default=None,
+                        help="CSV export(s) with additional CP seeds; writes variation_table.tex")
+    parser.add_argument("--seed-order-set", default="orders_set1", help="Order set used for the seed runs")
     args = parser.parse_args()
 
     runs = load_runs(args.base, args.reruns, args.ratios)
@@ -233,12 +351,18 @@ def main():
 
     if args.output_dir:
         tables = {
-            "routing_cmax_effect_d10.tex": main_table(runs, 10, "standard"),
-            "routing_cmax_effect_d1.tex": main_table(runs, 1, "fast"),
+            "routing_cmax_effect_d10.tex": main_table(runs, 10, "standard", args.split_init),
+            "routing_cmax_effect_d1.tex": main_table(runs, 1, "fast", args.split_init),
             "routing_cmax_effect_d10_ext.tex": ext_table(runs, 10, "standard"),
             "routing_cmax_effect_d1_ext.tex": ext_table(runs, 1, "fast"),
             "warmup_comparison.tex": warmup_table(runs),
         }
+        if args.lower_bound:
+            tables["lower_bound_comparison.tex"] = lower_bound_table(runs)
+        if args.seed_runs:
+            seed_runs = [r for path in args.seed_runs for r in load_runs(path)]
+            seed_runs += [r for r in runs if r["order_set"] == args.seed_order_set]
+            tables["variation_table.tex"] = variation_table(runs, seed_runs, args.seed_order_set)
         os.makedirs(args.output_dir, exist_ok=True)
         for filename, content in tables.items():
             with open(os.path.join(args.output_dir, filename), "w", encoding="utf-8") as f:

@@ -1,0 +1,43 @@
+Auditing 320 finished experiment(s) of batch 13...
+
+Runs with more than 3 movers transiting one tile: 1 / 320
+Total over-capacity events: 1
+Maximum movers transiting one tile: 4
+Runs with loading overlap after initial blocks: 0 / 320 (total ticks: 0)
+Runs with loading overlap involving initial blocks: 0 / 320 (total ticks: 0)
+
+Per configuration (layout, movers, dispensing time): runs, runs over capacity, events, max transiting
+('Paper_DOUBLELINE64', 1, 1) 10 0 0 1
+('Paper_DOUBLELINE64', 1, 10) 10 0 0 1
+('Paper_DOUBLELINE64', 4, 1) 10 0 0 3
+('Paper_DOUBLELINE64', 4, 10) 10 0 0 2
+('Paper_DOUBLELINE64', 8, 1) 10 0 0 3
+('Paper_DOUBLELINE64', 8, 10) 10 0 0 2
+('Paper_DOUBLELINE64', 12, 1) 10 0 0 3
+('Paper_DOUBLELINE64', 12, 10) 10 0 0 3
+('Paper_LINE64', 1, 1) 10 0 0 1
+('Paper_LINE64', 1, 10) 10 0 0 1
+('Paper_LINE64', 4, 1) 10 0 0 2
+('Paper_LINE64', 4, 10) 10 0 0 2
+('Paper_LINE64', 8, 1) 10 0 0 3
+('Paper_LINE64', 8, 10) 10 0 0 2
+('Paper_LINE64', 12, 1) 10 1 1 4
+('Paper_LINE64', 12, 10) 10 0 0 3
+('Paper_RING64', 1, 1) 10 0 0 1
+('Paper_RING64', 1, 10) 10 0 0 1
+('Paper_RING64', 4, 1) 10 0 0 3
+('Paper_RING64', 4, 10) 10 0 0 2
+('Paper_RING64', 8, 1) 10 0 0 3
+('Paper_RING64', 8, 10) 10 0 0 3
+('Paper_RING64', 12, 1) 10 0 0 3
+('Paper_RING64', 12, 10) 10 0 0 3
+('Paper_SQUARE64', 1, 1) 10 0 0 1
+('Paper_SQUARE64', 1, 10) 10 0 0 1
+('Paper_SQUARE64', 4, 1) 10 0 0 2
+('Paper_SQUARE64', 4, 10) 10 0 0 2
+('Paper_SQUARE64', 8, 1) 10 0 0 3
+('Paper_SQUARE64', 8, 10) 10 0 0 2
+('Paper_SQUARE64', 12, 1) 10 0 0 3
+('Paper_SQUARE64', 12, 10) 10 0 0 2
+
+Per-experiment results written to: data/results/audit_batch13.csv
