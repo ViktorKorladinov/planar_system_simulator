@@ -7,7 +7,9 @@
 #     PARALLEL=20 MEM_LIMIT=12g backend/scripts/run_cp_budget_parallel.sh backend/data/results/cp_budget/jobs.txt
 #
 # Logs and failures go to the folder of the job list. The Gurobi license of the repository root is mounted for
-# warm-start jobs; run the warm-start cache jobs (--warm-only) with PARALLEL=2 at most.
+# warm-start jobs, together with a gurobi.env that limits Gurobi to one thread (without it, Gurobi starts 32
+# threads in the 1-CPU container and the warm start is about 25 times slower). Run the warm-start cache jobs
+# (--warm-only) with PARALLEL=2 at most.
 
 set -euo pipefail
 
@@ -20,6 +22,7 @@ BACKEND=$(cd "$(dirname "$0")/.." && pwd)
 RUN_DIR=$(cd "$(dirname "$JOBS_FILE")" && pwd)
 
 mkdir -p "$RUN_DIR/logs"
+printf "Threads 1\n" > "$RUN_DIR/gurobi.env"
 
 run_job() {
     local args="$1"
@@ -37,6 +40,7 @@ run_job() {
         -v "$BACKEND/solvers:/app/solvers" -v "$BACKEND/core:/app/core" \
         -v planar_cplex_data:/opt/ibm:ro -e CPLEX_PATH="$CPLEX_PATH" -e HOME=/tmp \
         -v "$BACKEND/../gurobi.lic:/opt/gurobi/gurobi.lic:ro" -e GRB_LICENSE_FILE=/opt/gurobi/gurobi.lic \
+        -v "$RUN_DIR/gurobi.env:/app/gurobi.env:ro" \
         -w /app --entrypoint python "$IMAGE" scripts/run_cp_budget.py $args > "$log" 2>&1 \
         || echo "FAILED (exit $?): $args" >> "$RUN_DIR/failed.txt"
 }
