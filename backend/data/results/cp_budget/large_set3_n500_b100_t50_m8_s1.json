@@ -1,0 +1,1 @@
+{"layout": "square64", "orders_file": "large_set3.json", "num_orders": 500, "movers": 8, "batch_size": 100, "num_batches": 5, "time_budget_s": 50, "per_batch_time_limit_s": 10, "seed": 1, "dispensing_time": 10, "interface_time": 3, "feasible": false, "cp_cmax": null, "compressed_cmax": null, "batch_status": [], "batch_cmax": [], "batch_progress": [], "wall_time_s": 43.03}
