@@ -225,36 +225,40 @@ def warmup_table(runs: List[Dict[str, Any]]) -> str:
 
 
 def lower_bound_table(runs: List[Dict[str, Any]]) -> str:
-    """Lower bound (SHPPN + P||Cmax) and CP Optimizer's internal bound versus the scheduled makespan."""
+    """Lower bound (SHPPN + P||Cmax) and CP Optimizer's internal bound versus the scheduled makespan.
+
+    Warm-start runs are the proposed configuration; the cold-start gap is reported for comparison.
+    """
+    def gaps(cell, field):
+        return [(r["scheduled"] - (r[field] or 0.0)) / r["scheduled"] * 100 for r in cell]
+
     rows = []
     for speed, speed_name in SPEEDS:
         for movers in MOVER_COUNTS:
-            cell = select(runs, speed=speed, movers=movers)
-            lb = [r["lower_bound"] for r in cell]
-            cp = [r["cp_bound"] if r["cp_bound"] is not None else 0.0 for r in cell]
-            sched = [r["scheduled"] for r in cell]
-            gap_lb = [(r["scheduled"] - r["lower_bound"]) / r["scheduled"] * 100 for r in cell]
-            gap_cp = [(r["scheduled"] - (r["cp_bound"] or 0.0)) / r["scheduled"] * 100 for r in cell]
+            warm = select(runs, speed=speed, movers=movers, warmup=True)
+            cold = select(runs, speed=speed, movers=movers, warmup=False)
+            gap_warm, gap_cold = gaps(warm, "lower_bound"), gaps(cold, "lower_bound")
             speed_label = f"\\multirow{{{len(MOVER_COUNTS)}}}{{*}}{{{speed_name.capitalize()}}}" \
                 if movers == MOVER_COUNTS[0] else ""
             rows.append(
-                f"            {speed_label} & {movers} & {thousands(statistics.mean(lb))} & "
-                f"{thousands(statistics.mean(cp))} & {thousands(statistics.mean(sched))} & "
-                f"{statistics.mean(gap_lb):.2f} ({min(gap_lb):.2f}--{max(gap_lb):.2f}) & "
-                f"{statistics.mean(gap_cp):.2f} \\\\")
+                f"            {speed_label} & {movers} & {thousands(statistics.mean(r['lower_bound'] for r in warm))} & "
+                f"{thousands(statistics.mean(r['scheduled'] for r in warm))} & "
+                f"{statistics.mean(gap_warm):.2f} ({min(gap_warm):.2f}--{max(gap_warm):.2f}) & "
+                f"{statistics.mean(gap_cold):.2f} & {statistics.mean(gaps(warm, 'cp_bound')):.2f} \\\\")
         if speed != SPEEDS[-1][0]:
             rows.append("            \\midrule")
-    n = len(select(runs, speed=SPEEDS[0][0], movers=MOVER_COUNTS[0]))
+    n = len(select(runs, speed=SPEEDS[0][0], movers=MOVER_COUNTS[0], warmup=True))
     return "\n".join([
         "\\begin{table}[htbp]",
         "    \\centering",
         "    \\resizebox{\\textwidth}{!}{%",
-        "        \\begin{tabular}{c|c|ccc|cc}",
+        "        \\begin{tabular}{c|c|cc|ccc}",
         "            \\toprule",
         "            \\multirow{2}{*}{\\shortstack{Dispensing\\\\speed}} & \\multirow{2}{*}{\\shortstack{Mover\\\\count}} & "
-        "\\multicolumn{3}{c|}{Mean value} & \\multicolumn{2}{c}{Gap of scheduled $C_{\\max}$ to bound [\\%]} \\\\",
-        "            \\cmidrule(lr){3-5}\\cmidrule(lr){6-7}",
-        "             & & SHPPN LB & CP bound & Scheduled $C_{\\max}$ & SHPPN LB, mean (min--max) & CP bound, mean \\\\",
+        "\\multicolumn{2}{c|}{Mean value, warm start} & \\multicolumn{3}{c}{Gap of scheduled $C_{\\max}$ to bound [\\%]} \\\\",
+        "            \\cmidrule(lr){3-4}\\cmidrule(lr){5-7}",
+        "             & & SHPPN LB & Scheduled $C_{\\max}$ & SHPPN LB, warm, mean (min--max) & SHPPN LB, cold, mean & "
+        "CP bound, warm, mean \\\\",
         "            \\midrule",
         *rows,
         "            \\bottomrule",
@@ -262,8 +266,8 @@ def lower_bound_table(runs: List[Dict[str, Any]]) -> str:
         "    }",
         f"    \\caption{{Lower bounds versus scheduled makespan. SHPPN LB is the bound of Section~\\ref{{sec:lowerbound}}; "
         f"CP bound is the objective bound reported by CP Optimizer at its time limit. Each row summarizes $n={n}$ runs "
-        "with 100 orders across four topologies, five generated order sets, and two scheduler-initialization "
-        "configurations. Gaps are $(C_{\\max} - \\text{bound}) / C_{\\max}$.}",
+        "with 100 orders per scheduler start (four topologies, five generated order sets); the cold-start column is "
+        "given for comparison. Gaps are $(C_{\\max} - \\text{bound}) / C_{\\max}$.}",
         "    \\label{table:expFour:compar_wide}",
         "\\end{table}",
         "",
