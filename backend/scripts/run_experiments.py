@@ -180,6 +180,31 @@ def ensure_layouts(api_url: str, topology: str) -> List[int]:
     return layout_ids
 
 
+def ensure_layout_files(api_url: str, layout_files: List[str], topology_type: str = "square") -> List[int]:
+    """Finds or creates one layout per file (named Paper_<FILE BASENAME>), e.g. layouts from other placers."""
+    existing = {}
+    try:
+        resp = requests.get(f"{api_url}/api/v1/layouts/", params={"size": 100}, timeout=300)
+        if resp.status_code == 200:
+            existing = {lay.get("name"): lay["id"] for lay in resp.json().get("layouts", [])}
+    except Exception as e:
+        print(f"Warning checking layouts: {e}")
+
+    layout_ids = []
+    for filepath in layout_files:
+        payload = parse_layout_file(resolve_file_path(filepath), topology_type)
+        if payload["name"] in existing:
+            print(f"Using existing layout ID {existing[payload['name']]} ('{payload['name']}')")
+            layout_ids.append(existing[payload["name"]])
+            continue
+        resp = requests.post(f"{api_url}/api/v1/layouts/", json=payload, timeout=60)
+        if resp.status_code not in [200, 201]:
+            raise RuntimeError(f"Failed to create layout '{payload['name']}': {resp.text}")
+        layout_ids.append(resp.json()["id"])
+        print(f"Created layout ID {layout_ids[-1]} ('{payload['name']}', {len(payload['tiles'])} tiles)")
+    return layout_ids
+
+
 def create_order_lists(api_url: str, order_file: str, seeds_count: int = 5,
                        subsets: Optional[List[int]] = None) -> List[int]:
     """Generates order sets with different seeds or subsets and uploads them."""
@@ -365,6 +390,22 @@ def build_configurations(mode: str, time_limit: int) -> List[Dict[str, Any]]:
                 "process_amount": 1,
                 "warmup": True
             })
+    elif mode == "placer":
+        # GA (stochastic fitness) vs. Analytical placer (exact fitness) layouts, answer to R1 2.3
+        for mover_count in [8, 12]:
+            for dispensing_time in [10, 1]:
+                speed_label = "std" if dispensing_time == 10 else "fast"
+                configs.append({
+                    "name": f"Placer_M{mover_count}_{speed_label}_warm",
+                    "solver_type": "cplex_medicine",
+                    "mover_amount": mover_count,
+                    "dispensing_time": dispensing_time,
+                    "interface_time": 3,
+                    "time_limit": time_limit,
+                    "batch_size": 100,
+                    "process_amount": 1,
+                    "warmup": True
+                })
     elif mode == "all":
         configs.extend(build_configurations("overhead", time_limit))
         configs.extend(build_configurations("batching", time_limit))
@@ -404,7 +445,7 @@ def monitor_batch(api_url: str, batch_id: int, poll_interval: int = 10) -> None:
 
 def main():
     parser = argparse.ArgumentParser(description="Run experiment matrix for Planar System Simulator.")
-    parser.add_argument("--mode", choices=["quick-test", "overhead", "scalability", "batching", "lowerbound", "robustness", "all"],
+    parser.add_argument("--mode", choices=["quick-test", "overhead", "scalability", "batching", "lowerbound", "robustness", "placer", "all"],
                         default="quick-test", help="Study to run (default: quick-test)")
     parser.add_argument("--topology", default="square",
                         help="Topology to evaluate: 'square', 'doubleline', 'line', 'ring', or 'all' (default: square)")
@@ -415,6 +456,8 @@ def main():
                         help="CP solver time limit in seconds (default: 600)")
     parser.add_argument("--seeds", type=int, default=5,
                         help="Number of independent order set replications (default: 5)")
+    parser.add_argument("--layout-files", nargs="+", default=None,
+                        help="Layout JSON files to use instead of --topology (uploaded as square topology)")
     parser.add_argument("--order-file", default="orders.json",
                         help="Path to base orders JSON file (default: orders.json)")
     parser.add_argument("--order-files", nargs="+", default=None,
@@ -435,7 +478,10 @@ def main():
     print("=" * 65)
 
     # 1. Ensure Layout(s)
-    layout_ids = ensure_layouts(args.api_url, args.topology)
+    if args.layout_files:
+        layout_ids = ensure_layout_files(args.api_url, args.layout_files)
+    else:
+        layout_ids = ensure_layouts(args.api_url, args.topology)
 
     # 2. Ensure Order Lists
     if args.order_files:
