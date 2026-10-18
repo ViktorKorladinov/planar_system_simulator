@@ -251,13 +251,12 @@ def lower_bound_table(runs: List[Dict[str, Any]]) -> str:
         "\\begin{table}[htbp]",
         "    \\centering",
         "    \\resizebox{\\textwidth}{!}{%",
-        "        \\begin{tabular}{c|c|cc|ccc}",
+        "        \\begin{tabular}{c|c|cc|cc|c}",
         "            \\toprule",
         "            \\multirow{2}{*}{\\shortstack{Dispensing\\\\speed}} & \\multirow{2}{*}{\\shortstack{Mover\\\\count}} & "
-        "\\multicolumn{2}{c|}{Mean value} & \\multicolumn{3}{c}{Gap of the scheduled $C_{\\max}$ to the bound [\\%]} \\\\",
-        "            \\cmidrule(lr){3-4}\\cmidrule(lr){5-7}",
-        "             & & SHPPN LB & Scheduled $C_{\\max}$ (warm start) & Warm-started schedule to SHPPN LB, "
-        "mean (min--max) & Cold-started schedule to SHPPN LB, mean & Warm-started schedule to CP bound, mean \\\\",
+        "\\multicolumn{2}{c|}{Mean value} & \\multicolumn{2}{c|}{Gap to SHPPN LB [\\%]} & Gap to CP bound [\\%] \\\\",
+        "            \\cmidrule(lr){3-4}\\cmidrule(lr){5-6}\\cmidrule(lr){7-7}",
+        "             & & SHPPN LB & Scheduled $C_{\\max}$ & Warm, mean (min--max) & Cold, mean & Warm, mean \\\\",
         "            \\midrule",
         *rows,
         "            \\bottomrule",
@@ -265,8 +264,8 @@ def lower_bound_table(runs: List[Dict[str, Any]]) -> str:
         "    }",
         f"    \\caption{{Lower bounds versus scheduled makespan. SHPPN LB is the bound of Section~\\ref{{sec:lowerbound}}; "
         f"CP bound is the objective bound reported by CP Optimizer at its time limit. Each row summarizes $n={n}$ runs "
-        "with 100 orders per scheduler start (four topologies, five generated order sets). The gap of the cold-started "
-        "schedule is given for comparison. Gaps are $(C_{\\max} - \\text{bound}) / C_{\\max}$.}",
+        "with 100 orders per scheduler start (four topologies, five generated order sets). Scheduled $C_{\\max}$ is for the "
+        "warm start; warm and cold denote the schedules of the warm- and cold-started scheduler. Gaps are $(C_{\\max} - \\text{bound}) / C_{\\max}$.}",
         "    \\label{table:expFour:compar_wide}",
         "\\end{table}",
         "",
