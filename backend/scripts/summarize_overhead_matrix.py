@@ -128,7 +128,7 @@ def main_table(runs: List[Dict[str, Any]], speed: int, speed_name: str, split_in
     return "\n".join([
         "\\begin{table}[ht]",
         "    \\centering",
-        "    \\resizebox{\\textwidth}{!}{%",
+        "    \\small",
         f"        \\begin{{tabular}}{{c|{'c|' if split_init else ''}c|c|c|c|c}}",
         "            \\toprule",
         f"            \\shortstack{{Mover\\\\count}} & {init_header}\\shortstack{{Scheduled $C_{{\\max}}$\\\\mean $\\pm$ SD}} & "
@@ -138,7 +138,6 @@ def main_table(runs: List[Dict[str, Any]], speed: int, speed_name: str, split_in
         *rows,
         "            \\bottomrule",
         "        \\end{tabular}",
-        "    }",
         f"    \\caption{{Scheduling and routing makespans at {speed_name} dispensing speed"
         f"{', ' if split_init else '. '}{init_caption} $R_{{D/T}}$ is the ratio of total drug-dispensing time "
         "to total transit time.}",
@@ -193,8 +192,8 @@ def warmup_table(runs: List[Dict[str, Any]]) -> str:
         for speed, _ in SPEEDS:
             cold = statistics.mean(r["scheduled"] for r in select(runs, speed=speed, movers=movers, warmup=False))
             warm = statistics.mean(r["scheduled"] for r in select(runs, speed=speed, movers=movers, warmup=True))
-            diff = cold - warm
-            cells.append(f"{thousands(cold)} & {thousands(warm)} & {round(diff):+d} & {diff / cold * 100:.1f}\\%")
+            diff = warm - cold
+            cells.append(f"{thousands(cold)} & {thousands(warm)} & ${round(diff):+d}$ & ${diff / cold * 100:+.1f}$\\%")
         rows.append(f"            {movers} & " + " & ".join(cells) + " \\\\")
     n = len(select(runs, speed=10, movers=MOVER_COUNTS[0], warmup=False))
     return "\n".join([
@@ -207,8 +206,8 @@ def warmup_table(runs: List[Dict[str, Any]]) -> str:
         "            \\multicolumn{4}{c|}{Standard Dispensing Speed ($d=10$)} & ",
         "            \\multicolumn{4}{c}{Fast Dispensing Speed ($d=1$)} \\\\",
         "            \\cmidrule(lr){2-5}\\cmidrule(lr){6-9}",
-        "            & Cold Start & Warm Start & Difference $\\Delta$ & Improvement [\\%] & Cold Start & Warm Start & "
-        "Difference $\\Delta$ & Improvement [\\%] \\\\",
+        "            & Cold Start & Warm Start & Difference $\\Delta$ & Change [\\%] & Cold Start & Warm Start & "
+        "Difference $\\Delta$ & Change [\\%] \\\\",
         "            \\midrule",
         *rows,
         "            \\bottomrule",
@@ -216,8 +215,8 @@ def warmup_table(runs: List[Dict[str, Any]]) -> str:
         "    }",
         f"    \\caption{{Impact of constructive warm-start initialization on scheduled makespan ($C_{{\\max}}$) within "
         f"the 300s solver time limit across {len(runs)} runs ($n={n}$ per cell across four topologies and five "
-        "generated order sets). Positive differences indicate makespan reductions achieved by initializing CP "
-        "Optimizer with the heuristic schedule.}",
+        "generated order sets). $\\Delta$ is the warm-start minus the cold-start makespan; negative values indicate "
+        "makespan reductions achieved by initializing CP Optimizer with the heuristic schedule.}",
         "    \\label{table:expRouting:warmup_comparison}",
         "\\end{table}",
         "",
