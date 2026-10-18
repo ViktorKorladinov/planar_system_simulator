@@ -266,9 +266,8 @@ def lower_bound_table(runs: List[Dict[str, Any]]) -> str:
         "    }",
         f"    \\caption{{Lower bounds versus scheduled makespan. SHPPN LB is the bound of Section~\\ref{{sec:lowerbound}}; "
         f"CP bound is the objective bound reported by CP Optimizer at its time limit. Each row summarizes $n={n}$ runs "
-        "with 100 orders per scheduler start (four topologies, five generated order sets). The SHPPN LB does not depend "
-        "on the start of the scheduler; warm and cold refer to the CP schedule, and the gap of the cold-started schedule "
-        "is given for comparison. Gaps are $(C_{\\max} - \\text{bound}) / C_{\\max}$.}",
+        "with 100 orders per scheduler start (four topologies, five generated order sets). The gap of the cold-started "
+        "schedule is given for comparison. Gaps are $(C_{\\max} - \\text{bound}) / C_{\\max}$.}",
         "    \\label{table:expFour:compar_wide}",
         "\\end{table}",
         "",
