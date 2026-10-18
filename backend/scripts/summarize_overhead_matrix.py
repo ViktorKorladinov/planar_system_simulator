@@ -255,10 +255,10 @@ def lower_bound_table(runs: List[Dict[str, Any]]) -> str:
         "        \\begin{tabular}{c|c|cc|ccc}",
         "            \\toprule",
         "            \\multirow{2}{*}{\\shortstack{Dispensing\\\\speed}} & \\multirow{2}{*}{\\shortstack{Mover\\\\count}} & "
-        "\\multicolumn{2}{c|}{Mean value, warm start} & \\multicolumn{3}{c}{Gap of scheduled $C_{\\max}$ to bound [\\%]} \\\\",
+        "\\multicolumn{2}{c|}{Mean value} & \\multicolumn{3}{c}{Gap of the scheduled $C_{\\max}$ to the bound [\\%]} \\\\",
         "            \\cmidrule(lr){3-4}\\cmidrule(lr){5-7}",
-        "             & & SHPPN LB & Scheduled $C_{\\max}$ & SHPPN LB, warm, mean (min--max) & SHPPN LB, cold, mean & "
-        "CP bound, warm, mean \\\\",
+        "             & & SHPPN LB & Scheduled $C_{\\max}$ (warm start) & Warm-started schedule to SHPPN LB, "
+        "mean (min--max) & Cold-started schedule to SHPPN LB, mean & Warm-started schedule to CP bound, mean \\\\",
         "            \\midrule",
         *rows,
         "            \\bottomrule",
@@ -266,8 +266,9 @@ def lower_bound_table(runs: List[Dict[str, Any]]) -> str:
         "    }",
         f"    \\caption{{Lower bounds versus scheduled makespan. SHPPN LB is the bound of Section~\\ref{{sec:lowerbound}}; "
         f"CP bound is the objective bound reported by CP Optimizer at its time limit. Each row summarizes $n={n}$ runs "
-        "with 100 orders per scheduler start (four topologies, five generated order sets); the cold-start column is "
-        "given for comparison. Gaps are $(C_{\\max} - \\text{bound}) / C_{\\max}$.}",
+        "with 100 orders per scheduler start (four topologies, five generated order sets). The SHPPN LB does not depend "
+        "on the start of the scheduler; warm and cold refer to the CP schedule, and the gap of the cold-started schedule "
+        "is given for comparison. Gaps are $(C_{\\max} - \\text{bound}) / C_{\\max}$.}",
         "    \\label{table:expFour:compar_wide}",
         "\\end{table}",
         "",
