@@ -254,7 +254,7 @@ def lower_bound_table(runs: List[Dict[str, Any]]) -> str:
         "        \\begin{tabular}{c|c|cc|cc|c}",
         "            \\toprule",
         "            \\multirow{2}{*}{\\shortstack{Dispensing\\\\speed}} & \\multirow{2}{*}{\\shortstack{Mover\\\\count}} & "
-        "\\multicolumn{2}{c|}{Mean value} & \\multicolumn{2}{c|}{Gap to SHPPN LB [\\%]} & Gap to CP bound [\\%] \\\\",
+        "\\multicolumn{2}{c|}{Mean value [-]} & \\multicolumn{2}{c|}{Gap to SHPPN LB [\\%]} & Gap to CP bound [\\%] \\\\",
         "            \\cmidrule(lr){3-4}\\cmidrule(lr){5-6}\\cmidrule(lr){7-7}",
         "             & & SHPPN LB & Scheduled $C_{\\max}$ & Warm, mean (min--max) & Cold, mean & Warm, mean \\\\",
         "            \\midrule",
