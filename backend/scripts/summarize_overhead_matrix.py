@@ -298,21 +298,23 @@ def variation_table(set_runs: List[Dict[str, Any]], seed_runs: List[Dict[str, An
     return "\n".join([
         "\\begin{table}[htbp]",
         "    \\centering",
+        "    \\small",
         "        \\begin{tabular}{c|c|cc|cc}",
         "            \\toprule",
         "            \\multirow{2}{*}{\\shortstack{Dispensing\\\\speed}} & \\multirow{2}{*}{\\shortstack{Mover\\\\count}} & "
-        f"\\multicolumn{{2}}{{c|}}{{{n_seeds} solver seeds, one order set}} & "
-        f"\\multicolumn{{2}}{{c}}{{{n_sets} order sets, one seed}} \\\\",
+        f"\\multicolumn{{2}}{{c|}}{{CV over {n_seeds} CP seeds, one order set [\\%]}} & "
+        f"\\multicolumn{{2}}{{c}}{{CV over {n_sets} order sets, one seed [\\%]}} \\\\",
         "            \\cmidrule(lr){3-4}\\cmidrule(lr){5-6}",
-        "             & & Scheduled & Routed & Scheduled & Routed \\\\",
+        "             & & Scheduled $C_{\\max}$ & Routed $C_{\\max}$ & Scheduled $C_{\\max}$ & Routed $C_{\\max}$ \\\\",
         "            \\midrule",
         *rows,
         "            \\bottomrule",
         "        \\end{tabular}",
         "    \\caption{Variation of the makespan caused by the solver versus by the instance: mean coefficient of "
-        "variation [\\%] of the scheduled and routed $C_{\\max}$ over CP Optimizer random seeds on a fixed order set, "
-        "and over independently generated order sets with a fixed seed. Means are taken over the four topologies "
-        "and the two scheduler-initialization configurations.}",
+        "variation (CV) of the scheduled and routed $C_{\\max}$ over CP Optimizer random seeds on a fixed order set, "
+        "and over independently generated order sets with a fixed seed. The first measures the solver's own "
+        "nondeterminism, the second the variation between instances. Means are taken over the four topologies and "
+        "the two scheduler starts (warm and cold).}",
         "    \\label{table:expRouting:variation}",
         "\\end{table}",
         "",
