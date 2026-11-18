@@ -1,6 +1,4 @@
-# ==========================================
 # Stage 1: Build Frontend Assets
-# ==========================================
 FROM node:20-alpine AS builder
 
 WORKDIR /app
@@ -26,9 +24,7 @@ ENV VITE_BACKEND_URL=$VITE_BACKEND_URL \
 # Build production SPA
 RUN npm run build
 
-# ==========================================
 # Stage 2: Serve with Lightweight Nginx
-# ==========================================
 FROM nginx:1.27-alpine AS runner
 
 # Remove default configuration and install custom config

@@ -1,4 +1,4 @@
-# micka: scheduling, routing, digital twin, experiments
+# Development notes: scheduling, routing, digital twin, experiments
 
 `backend/` is the source of truth for scheduling, lower bounds, routing, and operational experiment results.
 Paths below are relative to `backend/` unless stated otherwise.
@@ -67,7 +67,7 @@ Paths below are relative to `backend/` unless stated otherwise.
   `../orders.json`, and `data/square64.json`.
 - Experiment order sets: `scripts/run_experiments.py` creates `Orders_Full_Seed1..5` as shuffles of the same
   99 orders, and `Orders_N{n}_Seed{s}` as random subsets.
-- Do not change benchmark data without asking.
+- The benchmark data is fixed; the paper results depend on it.
 
 ## Scripts: `scripts/`
 
@@ -139,8 +139,8 @@ Results produced before these fixes (batches 4–11 on vortex) used the old beha
 - `ScheduleCreator.movers` is built from `mover_amount` (was `dispensing_time`; visualizer only).
 - Tile lock and transit capacity in routing: batches 4–7 ran before these fixes (image built 2026-09-21).
 
-## Rules
+## Workflow
 
-- Ask before running full experiment batches; verify on a small instance first.
-- If a code change can affect reported results, say so; paper tables must be regenerated
+- Try a small instance before running a full experiment batch.
+- Code changes that affect reported results require regenerating the paper tables
   (`summarize_overhead_matrix.py`).

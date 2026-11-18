@@ -15,9 +15,7 @@ def verify_obtained_schedule(data: ExperimentDomainModel, schedule: Schedule) ->
     """
     errors = []
 
-    # ---------------------------------------------------------
     # 1. Group tasks by Mover for sequence and exclusivity checks
-    # ---------------------------------------------------------
     movers_tasks = {}
     for task in schedule.tasks:
         movers_tasks.setdefault(task.mover_id, []).append(task)
@@ -55,9 +53,7 @@ def verify_obtained_schedule(data: ExperimentDomainModel, schedule: Schedule) ->
             prev_order_end = bounds['end']
             prev_order_id = order_id
 
-    # ---------------------------------------------------------
     # 2. Tile Overlap Check (Physical collision on machines)
-    # ---------------------------------------------------------
     tiles_tasks = {}
     for task in schedule.tasks:
         if task.tile.type != TileType.INTERFACE:
@@ -80,9 +76,7 @@ def verify_obtained_schedule(data: ExperimentDomainModel, schedule: Schedule) ->
                 return layout_tile
         return None
 
-    # ---------------------------------------------------------
     # 3. Process Task-by-Task constraints & Order constraints
-    # ---------------------------------------------------------
     for task in schedule.tasks:
         idx = task.task_id
 
@@ -134,9 +128,7 @@ def verify_obtained_schedule(data: ExperimentDomainModel, schedule: Schedule) ->
                             f"Data Error (Task {idx}): Order index {task.order_id} does not exist in data.order_list."
                         )
 
-    # ---------------------------------------------------------
     # 4. Perfume-Specific Order Level Checks (T_max)
-    # ---------------------------------------------------------
     if data.order_list.type == OrderListType.PERFUME:
         for order_id, order in enumerate(data.order_list.orders):
             order_tasks = [t for t in schedule.tasks if t.order_id == order_id]

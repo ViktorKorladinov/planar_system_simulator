@@ -24,7 +24,7 @@ export function processMoverTrajectories(allPaths) {
   const numSteps = allPaths[0].length;
   const baseCenterOffset = (CELL_SIZE - MOVER_SIZE) / 2;
 
-  // Step 1: Base positions (all centered on tile)
+  // Base positions: every mover centered on its tile; resting movers get their site offset.
   const processed = allPaths.map((path, moverIdx) => {
     return path.map((step, t) => {
       const logicalX = step.x;
@@ -54,13 +54,12 @@ export function processMoverTrajectories(allPaths) {
     });
   });
 
-  // Step 2: Detect tiles with multiple occupants to apply subtle stack offset and count
+  // Movers sharing a tile at the same time step are fanned out diagonally so all stay visible.
   for (let t = 0; t < numSteps; t++) {
     const tileOccupants = new Map();
 
     for (let m = 0; m < numMovers; m++) {
       const step = processed[m][t];
-      // Skip wait_rest if it already has a dedicated offset
       if (step.mode === 'wait_rest' && (step.offsetX !== 0 || step.offsetY !== 0)) continue;
 
       const key = `${step.logicalX},${step.logicalY}`;
@@ -76,8 +75,7 @@ export function processMoverTrajectories(allPaths) {
         occupants.forEach((step, idx) => {
           step.stackCount = count;
           step.stackIdx = idx;
-          // Subtle stacked card offset: 8px spread so all are visible
-          const spread = 8;
+          const spread = 8; // px
           const shift = (idx - (count - 1) / 2) * spread;
           step.offsetX += shift;
           step.offsetY -= shift;
@@ -86,7 +84,7 @@ export function processMoverTrajectories(allPaths) {
     }
   }
 
-  // Step 3: Compute final pixel coordinates (x, y)
+  // Final pixel coordinates.
   for (let m = 0; m < numMovers; m++) {
     for (let t = 0; t < numSteps; t++) {
       const step = processed[m][t];

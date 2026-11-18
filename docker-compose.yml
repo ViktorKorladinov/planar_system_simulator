@@ -1,7 +1,5 @@
 services:
-  # =========================================================================
   # Database Service (PostgreSQL 15)
-  # =========================================================================
   db:
     image: postgres:15-alpine
     container_name: planar_db
@@ -20,9 +18,7 @@ services:
     networks:
       - planar_network
 
-  # =========================================================================
   # Cache & Broker Service (Redis 7)
-  # =========================================================================
   redis:
     image: redis:7-alpine
     container_name: planar_redis
@@ -37,9 +33,7 @@ services:
     networks:
       - planar_network
 
-  # =========================================================================
   # Backend API Service (FastAPI)
-  # =========================================================================
   backend:
     build:
       context: ./backend
@@ -81,9 +75,7 @@ services:
     networks:
       - planar_network
 
-  # =========================================================================
   # Celery Background Worker
-  # =========================================================================
   # Each worker solves one experiment at a time; scale with `docker compose up -d --scale celery_worker=N`.
   # WORKER_MEM_LIMIT caps the RAM of every worker container.
   celery_worker:
@@ -116,10 +108,8 @@ services:
     networks:
       - planar_network
 
-  # =========================================================================
-  # One-Time CPLEX Installer Service (Run on Linux host to populate cplex_data)
-  # Usage: docker compose --profile setup run --rm cplex_installer
-  # =========================================================================
+  # One-time CPLEX installer (run on the Linux host to populate cplex_data):
+  # docker compose --profile setup run --rm cplex_installer
   cplex_installer:
     image: eclipse-temurin:17-jre
     profiles: ["setup"]
@@ -141,9 +131,7 @@ services:
     networks:
       - planar_network
 
-  # =========================================================================
-  # Frontend 1 Application (React 19 + Vite SPA served via Nginx)
-  # =========================================================================
+  # Configurator (React + Vite, served by Nginx)
   frontend:
     build:
       context: ./frontend
@@ -170,9 +158,7 @@ services:
     networks:
       - planar_network
 
-  # =========================================================================
-  # Frontend 2 Application (Next.js 14 Simulation Viewer)
-  # =========================================================================
+  # Simulation viewer (Next.js)
   simulator:
     build:
       context: ./simulator

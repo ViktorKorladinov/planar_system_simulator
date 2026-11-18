@@ -1,6 +1,4 @@
-# ==========================================
 # Stage 1: Build & Dependencies
-# ==========================================
 FROM python:3.10-slim AS builder
 
 WORKDIR /build
@@ -20,9 +18,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir --prefix=/install -r requirements.txt
 
-# ==========================================
 # Stage 2: Production Runtime
-# ==========================================
 FROM python:3.10-slim AS runner
 
 # Install lightweight runtime dependencies (PostgreSQL client library and curl for healthcheck)

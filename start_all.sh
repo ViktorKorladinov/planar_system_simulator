@@ -1,9 +1,7 @@
 #!/bin/bash
 
-# Navigate to the script's directory
 cd "$(dirname "$0")"
 
-# Check if Docker is running
 if ! docker info > /dev/null 2>&1; then
   echo "Docker is not running. Attempting to start Docker Desktop..."
   open -a Docker
@@ -34,17 +32,14 @@ echo "Starting Simulator..."
 SIMULATOR_PID=$!
 
 echo ""
-echo "========================================================"
-echo "✅ All services are starting up!"
+echo "All services are starting up:"
 echo "   - Frontend App:   http://localhost:5173"
 echo "   - Simulator App:  http://localhost:3000"
 echo "   - Backend API:    http://localhost:8000/docs"
-echo "========================================================"
 echo "Press [CTRL+C] to stop all services."
 echo ""
 
-# Trap Ctrl+C (SIGINT) to clean up background processes
+# Stop the background processes and the databases on Ctrl+C.
 trap "echo 'Stopping all services...'; kill $CELERY_PID $API_PID $FRONTEND_PID $SIMULATOR_PID; docker compose -f backend/docker-compose.yml stop; exit" INT TERM
 
-# Wait indefinitely until interrupted
 wait
